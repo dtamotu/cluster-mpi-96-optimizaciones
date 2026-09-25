@@ -12,7 +12,7 @@ Sí, pero hay que distinguir entre reconstruir el informe, consultar las medicio
 | Repetir exactamente las baterías históricas | Las fuentes y scripts están disponibles, pero los binarios históricos deben prepararse manualmente. |
 | Reproducir exactamente el estado de la red, frecuencia, carga y Wi-Fi | No puede garantizarse desde Git; esas condiciones dependen del momento de ejecución. |
 
-El repositorio es privado, por lo que hace falta tener acceso a GitHub para clonarlo.
+El repositorio es público y de libre acceso en GitHub para su clonación y replicación.
 
 ## Mediciones almacenadas
 

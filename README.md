@@ -176,4 +176,4 @@ cluster-mpi-96-optimizaciones/
 ## 📜 Licencia y Cita Académica
 
 Proyecto académico desarrollado para el curso de **Computación Paralela y Distribuida** de la **Universidad Nacional de San Agustín (UNSA)**.  
-Repositorio privado: [github.com/dtamotu/cluster-mpi-96-optimizaciones](https://github.com/dtamotu/cluster-mpi-96-optimizaciones)
+Repositorio público: [github.com/dtamotu/cluster-mpi-96-optimizaciones](https://github.com/dtamotu/cluster-mpi-96-optimizaciones)
