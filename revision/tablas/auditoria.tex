@@ -1,0 +1,19 @@
+\begin{center}\small
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}p{3.6cm}X}
+\toprule
+Comprobación & Alcance & Resultado \\
+\midrule
+Primera batería: CSV frente a logs & 50 filas (T\_Total, $P$) & sin discrepancias \\
+Segunda batería: CSV consolidado frente a logs & 75 filas (4 tiempos) & sin discrepancias \\
+Huellas de matrices en ambas baterías & 6 tamaños de $N$ & sin discrepancias \\
+Error del trapecio respecto de $\pi$ & 40 ejecuciones & máximo 1.61e-10 \\
+Campaña: CSV frente a logs & 118 filas (tiempos y huellas) & sin discrepancias \\
+Campaña: TX/RX frente a contadores del log & 118 filas & sin discrepancias \\
+Campaña: sellos SHA256SUMS & 122 archivos & sin discrepancias \\
+Copias de evidencia frente a procedencia & 152 archivos & sin discrepancias \\
+Originales externos, si están disponibles & 152 archivos & \textbf{distintos}: \archivo{graficar.py}, \archivo{mpi_matrix_2d.c} \\
+Compilación registrada en la campaña & \archivo{entorno.json} & \texttt{mpicc -O3 -std=c11 -Wall -Wextra} \\
+Gráficos de \archivo{bateria_expandida/.../analisis/} & \archivo{metricas.csv} & \textbf{solo Wi-Fi} \\
+\bottomrule
+\end{tabularx}
+\end{center}

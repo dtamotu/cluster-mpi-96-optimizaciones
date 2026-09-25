@@ -16,6 +16,11 @@
 *.fdb_latexmk
 *.synctex.gz
 tmp/
+/revision/tmp/
+/revision/*.aux
+/revision/*.log
+/revision/*.out
+/revision/*.toc
 __pycache__/
 
 # Archivos locales del editor y del sistema

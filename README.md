@@ -1,28 +1,34 @@
 # Informe actualizado: 96 núcleos, Ethernet y Wi-Fi
 
 Esta copia derivada añade los experimentos de optimización en
-[OPTIMIZACIONES.md](OPTIMIZACIONES.md) y el informe final integrado en
-[informe_final.tex](informe_final.tex). Conserva las instrucciones del informe
-anterior, sus datos originales y la evidencia nueva.
+[OPTIMIZACIONES.md](OPTIMIZACIONES.md). El informe revisado está en
+[revision/informe_mejorado.tex](revision/informe_mejorado.tex) y su PDF en
+[revision/informe_mejorado.pdf](revision/informe_mejorado.pdf). La revisión
+incorpora auditoría de los datos, análisis de variabilidad y conclusiones
+corregidas; el informe anterior permanece en [informe_final.tex](informe_final.tex).
 
 Repositorio: [github.com/dtamotu/cluster-mpi-96-optimizaciones](https://github.com/dtamotu/cluster-mpi-96-optimizaciones) (privado).
 
-Abrir `informe_final.pdf`. El documento conserva la carátula, integrantes, curso,
-profesor y narrativa histórica, y añade el resumen ejecutivo y la campaña final
-de optimización. `informe_optimizacion.pdf` queda como informe técnico acotado
-de la campaña nueva.
+Abrir `revision/informe_mejorado.pdf`. El documento conserva la carátula,
+integrantes, curso y narrativa histórica; también integra la campaña de
+optimización, una auditoría de las 243 ejecuciones y el análisis de las
+repeticiones. `informe_optimizacion.pdf` queda como informe técnico acotado de
+la campaña nueva.
 
 ## Reconstrucción
 
 ```bash
-cd /home/alumno16/informe_actual_96
-./compilar_final.sh
+cd /home/alumno16/cluster-mpi-96-optimizaciones/revision
+./compilar.sh
 ```
 
 Requiere Python 3 con matplotlib/numpy, pdflatex y los paquetes LaTeX del informe
 de referencia. La reconstrucción solo lee las copias de evidencia; no ejecuta MPI.
 
-- `informe_final.tex`: portada y composición del informe integrado.
+- `revision/informe_mejorado.tex`: portada y composición de la versión revisada.
+- `revision/auditar_evidencia.py`: coteja CSV, logs, contadores y sellos.
+- `revision/generar_optimizacion.py`: tabla resumen, repeticiones y figuras nuevas.
+- `informe_final.tex`: versión integrada anterior a la revisión.
 - `main.tex`: versión histórica del informe completo.
 - `contenido.tex` y `ampliacion.tex`: metodología, resultados e interpretación.
 - `anexos.tex`: configuración, comandos, scripts y fuentes.
@@ -34,10 +40,10 @@ de referencia. La reconstrucción solo lee las copias de evidencia; no ejecuta M
 - `medir_trafico.sh`: herramienta opcional para una ejecución futura con contadores
   TX. No se ejecutó para generar los resultados del informe.
 
-La campaña nueva usada por el informe final suma 82 ejecuciones de matrices y
+La campaña nueva usada por el informe revisado suma 82 ejecuciones de matrices y
 difusión, más 36 ejecuciones extra de tamaños mayores y trapecio. Todas las 118
 filas válidas fueron auditadas contra sus logs y selladas con SHA-256. El script
-`compilar_final.sh` vuelve a generar las tablas, figuras y el PDF usando esas
+`revision/compilar.sh` vuelve a generar las tablas, figuras y el PDF usando esas
 copias locales; no necesita que los cuatro nodos estén conectados.
 
 Las dos baterías tienen una sola ejecución por configuración. La segunda suma

@@ -1,0 +1,55 @@
+\section{Resumen ejecutivo}
+
+Este documento reúne y vuelve a interpretar toda la evidencia disponible del proyecto de multiplicación de matrices y regla del trapecio en un clúster de cuatro nodos con 96 núcleos físicos. Se mantienen separados los experimentos históricos, la batería ampliada y la campaña de optimización para que cada comparación conserve su protocolo y su alcance.
+
+\begin{center}
+\small
+\begin{tabular}{p{3.5cm}r p{8.0cm}}
+\toprule
+Fuente & Registros & Qué permite afirmar \\
+\midrule
+Primera batería & 50 & Comparación inicial entre Ethernet y Wi-Fi con $P=1,24,48,72,96$; una corrida por configuración. \\
+Batería ampliada & 75 & Repite tamaños y añade $N=512,4096,6144$; conserva TX+RX del servidor y comprobaciones de consistencia. \\
+Optimización controlada & 118 & Medianas y rangos de 3 o 5 repeticiones; compara difusión jerárquica, SUMMA 2D, algoritmos tuned, tamaños mayores y reparto asimétrico. \\
+\midrule
+Total documentado & 243 & Registros de ejecución conservados en CSV, logs, metadatos y sellos SHA-256. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Respuestas breves}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{4.3cm}X>{\raggedright\arraybackslash}p{2.6cm}}
+\toprule
+Pregunta & Respuesta sustentada por los datos & Evidencia \\
+\midrule
+¿Conviene usar los cuatro nodos para matrices? & No en ningún tamaño medido ($N\le7168$). El mejor tiempo siempre fue un nodo con 24 procesos; con 96 procesos, 1D global tardó entre 4.57 y 9.65 veces más por Ethernet. & Secc.~\ref{sec:opt}, tabla~\ref{tab:opt-resumen} \\
+¿Qué optimización funcionó? & Difundir $B$ una vez por nodo. Con $N=3072$ y $P=96$, la mediana bajó de 6.260 a 3.217 s por Ethernet y de 101.082 a 51.479 s por Wi-Fi; el TX agregado bajó a menos de la mitad. & Secc.~\ref{sec:opt} \\
+¿Hace falta programarla a mano? & En la difusión aislada, pedir a Open MPI el algoritmo \texttt{knomial} produjo un TX similar y una mediana 3\,\% menor que la versión jerárquica escrita en C. Falta medirlo en el programa completo. & Tabla~\ref{tab:opt-resumen} \\
+¿Mejoró SUMMA 2D? & No. Con $P=64$ tardó 1.75 veces más que 1D por Ethernet y movió casi el doble de datos. & Tabla~\ref{tab:opt-resumen} \\
+¿Conviene distribuir el trapecio? & Sí, con carga grande: $n=10^{11}$ alcanza un speedup de 68.56 con 96 procesos por Ethernet. Con $n=10^8$ por Wi-Fi, 96 procesos son más lentos que uno. & Secc.~\ref{sec:trap-grande} \\
+¿Ayuda el reparto asimétrico P/E? & No de forma concluyente. Con 24 procesos y $n=10^{11}$, la mediana mejora 1.05 veces pero los rangos se solapan; con 96 procesos es 3\,\% más lento. & Tabla~\ref{tab:trap-reps} \\
+¿Son estables las corridas únicas? & En las configuraciones de matrices comparables con 96 procesos, las corridas únicas quedaron a menos de un 2\,\% de las medianas posteriores. Con 24 procesos la campaña fue 19--37\,\% más lenta, sobre todo en el cálculo, y se compiló sin \texttt{-march=native}. & Secc.~\ref{sec:variabilidad} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Qué cambió respecto de la imagen inicial}
+
+La ejecución de madrugada con ocho procesos, $N=3072$ y Wi-Fi tardó 906.351 s y registró 889.744 s en el máximo de \texttt{MPI\_Bcast(B)}. Ese caso sigue siendo un antecedente válido, pero no se mezcla con las campañas nuevas: usó otro ejecutable, otro kernel y otra instrumentación. La campaña controlada repite la pregunta con afinidad fija, kernel por bloques, comprobaciones de huellas y una separación explícita entre 1D global y 1D jerárquica. Por eso ahora se puede atribuir la mejora a una hipótesis comprobada en esta topología, sin afirmar que el comando por sí solo revele el algoritmo interno de Open MPI.
+
+\subsection{Qué añade esta versión revisada}
+
+\begin{itemize}
+\item Una \textbf{auditoría completa} de la evidencia (sección~\ref{sec:auditoria}): las 243 filas de resultados coinciden con sus logs, las huellas numéricas son consistentes y los sellos SHA-256 están intactos. También documenta los problemas de trazabilidad hallados en archivos auxiliares y borradores.
+\item Una comparación entre las \textbf{corridas únicas y las medianas repetidas} (sección~\ref{sec:variabilidad}), que acota cuánto se puede confiar en cada cifra de las baterías.
+\item La advertencia de que la campaña se compiló \textbf{sin} \texttt{-march=native -funroll-loops}, a diferencia de las baterías: sus comparaciones internas son válidas, pero sus tiempos absolutos de cálculo no son directamente comparables con los de las baterías.
+\item Una tabla resumen de la campaña con cocientes, solapamiento de rangos y el resultado \texttt{knomial}, más la tabla de repeticiones del trapecio con el desbalance leído de cada log.
+\item Conclusiones unificadas al final, después de toda la evidencia, y figuras de la campaña con valores anotados y en formato vectorial.
+\end{itemize}
+
+\subsection{Alcance y reproducibilidad}
+
+Los tiempos provienen de \texttt{MPI\_Wtime}; los contadores de red se describen junto a su alcance y no se presentan como bytes útiles exactos de una colectiva. Cada corrida nueva conserva su comando, entorno, log y resultado en \texttt{resultados\_optimizacion/}. Los scripts de esta carpeta regeneran tablas, figuras, auditorías y este PDF sin depender de los nodos remotos; leen la evidencia del repositorio original sin modificarla.

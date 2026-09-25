@@ -1,0 +1,33 @@
+\section{Auditoría de la evidencia}\label{sec:auditoria}
+
+Antes de redactar esta versión se volvió a contrastar cada cifra con su registro primario. El script \archivo{auditar_evidencia.py} repite las comprobaciones de forma automática y genera la tabla~\ref{tab:auditoria}; solo lee los CSV, logs, JSON y sellos del repositorio original y no corrige ningún dato.
+
+\begin{table}[htbp]
+\caption{Resultado de la auditoría automática.}\label{tab:auditoria}
+\input{tablas/auditoria}
+\end{table}
+
+\subsection{Lo que queda verificado}
+
+\begin{itemize}
+\item \textbf{Los tiempos de las tablas y figuras coinciden con los logs.} Las 50 filas de la primera batería, las 75 de la segunda y las 118 de la campaña reproducen exactamente la línea \texttt{RESULT} de su log, incluidas las fases y, en la campaña, los contadores TX/RX de cada nodo.
+\item \textbf{Los cálculos son consistentes.} Para cada uno de los seis tamaños de matriz, todas las ejecuciones de ambas baterías imprimen la misma suma diagonal y la misma suma ponderada. El error máximo del trapecio respecto de $\pi$ es $1.6\times10^{-10}$.
+\item \textbf{La evidencia no se alteró.} Los 122 archivos sellados de la campaña y las 152 copias listadas en la procedencia conservan su SHA-256.
+\item \textbf{El informe es reproducible.} Las tablas y las figuras PNG del informe original se regeneraron en una copia aislada y resultaron idénticas byte a byte; los PDF de figuras solo difirieron en la fecha de creación.
+\end{itemize}
+
+\subsection{Problemas hallados y cómo se tratan}
+
+\paragraph{Gráficos de la batería ampliada que no corresponden a su nombre.} En la copia original disponible en esta computadora, dentro de \archivo{experimentos_96/bateria_expandida/20260925_003457/analisis/}, \archivo{metricas.csv} coincide exactamente con \archivo{tiempos_wifi.csv}: los ocho gráficos son de Wi-Fi y no incluyen $N=6144$. \archivo{graficar.py} escribe siempre en \archivo{analisis/}, junto al CSV, y los dos CSV comparten carpeta, lo que explica que la ejecución Wi-Fi sobrescribiera la de Ethernet. Este informe no usa esos gráficos; sus figuras de la batería ampliada se generan directamente desde el CSV consolidado.
+
+\paragraph{Procedencia de dos archivos.} En los originales disponibles en esta computadora, la copia \archivo{src/mpi_matrix_2d.c} del repositorio del informe se modificó después para añadir \texttt{1d-hier}, y el hash de \archivo{procedencia.json} se actualizó a la versión modificada. El programa que produjo las dos baterías es el original de \archivo{experimentos_96/src/}, idéntico al del primer commit \texttt{f81f488}. El camino \texttt{1d} es equivalente en ambas versiones (mismas barreras y colectivas); la versión nueva solo separa los tiempos de \texttt{Scatterv} y \texttt{Bcast}. A la inversa, \archivo{experimentos_96/graficar.py} se modificó después de copiarse (añade el gráfico \texttt{04\_speedup\_vs\_master}); la copia conservada es la versión anterior. Estos originales externos no se necesitan para compilar el informe; la auditoría indica cuántos pudo consultar.
+
+\paragraph{Compilación distinta en la campaña.} Las baterías usaron \texttt{-O3 -march=native -funroll-loops}; la campaña, \texttt{-O3} sin optimizaciones específicas del procesador. Sus efectos se analizan en la sección~\ref{sec:variabilidad}.
+
+\paragraph{Afirmaciones de los borradores que no se sostienen.} Los documentos de trabajo del directorio \archivo{experimentos_96} contienen tablas numéricas correctas, pero también conclusiones que los registros no respaldan. Este informe no las incorpora:
+\begin{itemize}
+\item \archivo{HALLAZGOS_Y_CLARIFICACIONES_OPTIMIZACION_96.md} informa una mejora del trapecio asimétrico de 1.19 veces ($-16$\,\%) usando solo la primera repetición; con medianas es 1.05 y los rangos se solapan (tabla~\ref{tab:trap-reps}). Su columna de desbalance (1.045, 1.082, 1.341\ldots) no coincide con ningún log de la campaña. Su tabla de tamaños combina mínimos o máximos de $P=24$ con medianas de $P=96$ y la variante jerárquica con la global. También atribuye a la campaña el uso de \texttt{-march=native}, que \archivo{entorno.json} no registra.
+\item \archivo{INFORME_ANALISIS_EXPANDIDO_96.md} supone que las pruebas actuales ya usaban una difusión jerárquica; la campaña lo contradice (755.5 MB frente a 358.9 MB con $P=96$). Atribuye 357 MB medidos a las pruebas de 96 procesos, cuando el servidor registró 500.9--516.7 MB y los 357 MB son de otra serie. Ajusta porcentajes de sobrecarga para lograr una ``concordancia exacta'' con 1112 MB. Explica la lentitud de madrugada con una saturación de RAM, aunque el cálculo ocupó 0.44 s de 338.8 s y 1.74 s de 906 s. Además, presenta como resultados la tabla P/E y el ``$-68$\,\%'' de espera, sin salidas conservadas.
+\end{itemize}
+
+\paragraph{Datos históricos con respaldo parcial.} Las series de madrugada y mediodía se conservan como JSON con dos repeticiones por configuración y sin logs completos, salvo \archivo{repetir_profiling_cluster.log}, que registra el caso de 906.351 s. Por eso se tratan como antecedentes y no se promedian con las baterías.

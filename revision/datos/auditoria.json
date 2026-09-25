@@ -1,0 +1,35 @@
+{
+  "bateria_1": [
+    50,
+    0
+  ],
+  "bateria_2": [
+    75,
+    0
+  ],
+  "tamanos_matriz": [
+    6,
+    0
+  ],
+  "trapecio_error_max": 1.614e-10,
+  "campana": [
+    118,
+    0,
+    0
+  ],
+  "sha256sums": [
+    122,
+    0
+  ],
+  "procedencia_copias": [
+    152,
+    0
+  ],
+  "originales_revisados": 152,
+  "originales_distintos": [
+    "graficar.py",
+    "mpi_matrix_2d.c"
+  ],
+  "compilacion_campana": "mpicc -O3 -std=c11 -Wall -Wextra",
+  "analisis_bateria_ampliada": "Wi-Fi"
+}

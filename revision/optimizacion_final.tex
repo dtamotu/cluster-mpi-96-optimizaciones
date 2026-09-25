@@ -1,0 +1,63 @@
+\section{Campaña final de optimización}\label{sec:opt}
+
+Esta sección incorpora la campaña controlada ejecutada después de las dos baterías históricas. Su propósito fue comprobar qué cambios reducen el coste de comunicación observado en la corrida de 906 s y separar tres efectos que antes estaban mezclados: el algoritmo de difusión, la topología de la partición y el tamaño del problema.
+
+\subsection{Protocolo y control de calidad}
+
+Las matrices usan el kernel \texttt{tiled} con bloque 64, afinidad de un proceso por núcleo y las interfaces de red fijadas en el lanzador. La variante \texttt{1d} distribuye filas de $A$, realiza una difusión global de $B$ y reúne $C$. La variante \texttt{1d-hier} primero difunde entre un líder por nodo y después dentro de cada nodo. SUMMA 2D se evalúa solo con $P=64$, porque la implementación exige una malla cuadrada. El microbenchmark de Bcast transmite una matriz de 75.497 MB y comprueba una huella de 64 bits idéntica en todos los procesos. Las variantes \texttt{tuned} fuerzan el algoritmo de la colectiva con \texttt{--mca coll\_tuned\_use\_dynamic\_rules 1} y \texttt{--mca coll\_tuned\_bcast\_algorithm 7} (knomial) u \texttt{8} (scatter/allgather).
+
+Se conservaron 118 intentos válidos: cinco repeticiones para las comparaciones principales de $N=3072$ y tres para tamaños mayores, trapecio y difusión aislada. El auditor contrasta cada fila del CSV con su log, comprueba las sumas de control de matrices, verifica el error numérico del trapecio y genera \texttt{SHA256SUMS}. Los intentos piloto y de humo se mantienen en el repositorio como validación operativa, pero no entran en las medianas de esta sección.
+
+\begin{idea}
+\textbf{Advertencia de compilación.} El archivo \archivo{entorno.json} de la campaña registra \texttt{mpicc -O3 -std=c11 -Wall -Wextra}. Las dos baterías anteriores se compilaron con \texttt{-O3 -march=native -funroll-loops}. Las comparaciones \emph{dentro} de la campaña usan el mismo binario y son válidas; los tiempos absolutos de cálculo \emph{no} deben compararse directamente con los de las baterías. La sección~\ref{sec:variabilidad} cuantifica la diferencia.
+\end{idea}
+
+\subsection{Resumen de las comparaciones}
+
+La tabla~\ref{tab:opt-resumen} reúne las comparaciones que responden a las preguntas de la campaña. $\tilde T$ es la mediana; el cociente de TX usa las medianas del tráfico agregado. La última columna indica si los rangos mínimo--máximo de A y B están \emph{separados} o se \emph{solapan}. Con tres o cinco repeticiones no se estiman intervalos de confianza; un solapamiento indica que la diferencia de medianas no basta para afirmar una mejora.
+
+\begin{table}[htbp]
+\caption{Comparaciones principales de la campaña de optimización. Un cociente $\tilde T_A/\tilde T_B$ mayor que 1 significa que B fue más rápido.}\label{tab:opt-resumen}
+\input{tablas/optimizacion_resumen}
+\end{table}
+
+\subsection{Difusión jerárquica: la mejora demostrada}
+
+\begin{figure}[htbp]\centering\includegraphics[width=0.94\linewidth]{img/optimizacion_matrices.pdf}\caption{Multiplicación completa para $N=3072$. Barras: mediana; líneas: mínimo y máximo de cinco repeticiones. Escala vertical logarítmica.}\end{figure}
+
+Con cuatro nodos y 96 procesos, la variante jerárquica redujo el tiempo total 1.95 veces por Ethernet y 1.96 por Wi-Fi, y el TX agregado 2.11 y 2.13 veces. El máximo de la fase \texttt{Bcast} pasó de 5.611 a 2.474 s por Ethernet y de 88.904 a 40.272 s por Wi-Fi. Los rangos de las cinco repeticiones no se solapan en ninguna red. Con 24 procesos en un nodo no hay diferencia clara (0.649 frente a 0.691 s por Ethernet y 0.666 frente a 0.673 s por Wi-Fi, con rangos solapados): no hay tráfico entre nodos que ahorrar.
+
+\begin{figure}[htbp]\centering\includegraphics[width=0.9\linewidth]{img/optimizacion_bcast.pdf}\caption{Difusión aislada de $B$ con 16 procesos en cuatro nodos. Barras: mediana de tres repeticiones; líneas: mínimo y máximo. Escala vertical logarítmica.}\end{figure}
+
+El microbenchmark aísla el efecto sin el cálculo. La colectiva global y la selección forzada \texttt{scatter\_allgather} dieron tiempos y TX próximos (1032.5 y 1032.4 MB por Ethernet; 1006.5 MB por Wi-Fi). La jerárquica y la selección forzada \texttt{knomial} bajaron el TX a unos 228--238 MB, cerca de las tres copias de 75.5 MB que requieren tres nodos remotos (226.5 MB). \textbf{\texttt{knomial} obtuvo una mediana 3\,\% menor que la versión jerárquica escrita en C} en ambas redes, con rangos separados en estas tres repeticiones. Es una alternativa prometedora sin cambiar el código. Queda por medir esa selección dentro de la multiplicación completa con $P=96$.
+
+\subsection{Partición 2D y tamaño del problema}
+
+SUMMA 2D con $P=64$ no mejoró el tiempo completo: 5.492 s frente a 3.147 s de 1D por Ethernet y 87.314 s frente a 51.728 s por Wi-Fi, con casi el doble de TX (678 frente a 358 MB). El resultado no invalida SUMMA en general; indica que esta implementación, este tamaño y esta topología introducen más pasos y empaquetamiento que los que ahorran.
+
+\begin{figure}[htbp]\centering\includegraphics[width=0.78\linewidth]{img/optimizacion_tamano.pdf}\caption{Escalamiento por tamaño en Ethernet con 1D global. Cada punto es la mediana y las barras muestran el rango observado.}\end{figure}
+
+Al crecer $N$, el cociente $T_{96}/T_{24}$ bajó de 9.65 ($N=3072$) a 4.77 ($N=6144$) y 4.57 ($N=7168$). El cálculo crece como $N^3$ y la comunicación como $N^2$, así que la desventaja de los cuatro nodos se reduce, pero no desaparece en los tamaños medidos. Como el binario de la campaña calcula más despacio que el de las baterías, estos cocientes probablemente \emph{subestiman} la ventaja de un solo nodo. No se puede extrapolar un cruce: además, en 1D cada proceso reserva la matriz $B$ completa, de modo que la memoria agregada de los cuatro nodos no permite resolver matrices mayores que las que caben en uno.
+
+\subsection{Reparto asimétrico del trapecio}
+
+\begin{table}[htbp]
+\caption{Trapecio simétrico y asimétrico, tres repeticiones por Ethernet. \emph{Desb.} es el cociente $T_{CalcMax}/T_{CalcMin}$ impreso en cada log.}\label{tab:trap-reps}
+\input{tablas/trapecio_repeticiones}
+\end{table}
+
+El reparto asimétrico asigna 1.2658 veces más trapecios a los núcleos P. Con $n=10^{11}$ y 24 procesos, su mediana fue 4.940 s frente a 5.183 s del simétrico, pero la tercera repetición simétrica (4.753 s) fue más rápida que dos de las asimétricas, y el desbalance asimétrico (1.233--1.396) no quedó por debajo del simétrico (1.244--1.286). Con 96 procesos, el asimétrico fue más lento en las tres repeticiones. Con $n=10^8$ los tiempos son de milisegundos y el desbalance varía mucho entre corridas. \textbf{El reparto ponderado no produce una mejora demostrable con este binario}; el peso 1.2658 se calibró en un microbenchmark exploratorio cuyas salidas no se conservaron.
+
+\subsection{Tabla completa de la campaña}
+
+La tabla~\ref{tab:opt-detalle} contiene todas las configuraciones válidas. Los tiempos de \texttt{bcast} corresponden a \texttt{T\_Bcast} del microbenchmark; los demás, a \texttt{T\_Total}.
+
+\begin{landscape}\footnotesize\renewcommand{\arraystretch}{1.0}
+\input{tablas/optimizacion_detalle}
+\end{landscape}
+
+\subsection{Resultados que no deben sobreinterpretarse}
+
+El hecho de que \texttt{1d-hier} sea más rápido no demuestra que la colectiva global anterior enviara exactamente una copia por proceso ni que todo el tráfico local viajara por TCP. Cada proceso sigue reservando su propia copia completa de $B$; la variante nueva cambia el patrón de mensajes, no convierte la memoria en una ventana compartida. Para identificar el algoritmo interno de Open MPI en cada corrida habría que registrar el componente colectivo seleccionado.
+
+La suma TX de los nodos y el contador TX+RX del servidor de las baterías anteriores tienen alcances diferentes. Se conservan ambos porque responden preguntas distintas: el primero permite comparar la presión agregada en la campaña nueva y el segundo documenta qué observó una interfaz concreta durante la batería ampliada. Ninguna de las dos cifras equivale al volumen útil exacto de una colectiva.

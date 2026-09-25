@@ -1,0 +1,30 @@
+\begin{center}\small
+\begin{tabular}{p{4.6cm}lrrrrc}
+\toprule
+Comparación A / B & Red & $\tilde T_A$ (s) & $\tilde T_B$ (s) & $\tilde T_A/\tilde T_B$ & TX$_A$/TX$_B$ & Rangos \\
+\midrule
+\addlinespace[2pt]\multicolumn{7}{l}{\textit{Difusión de $B$ en la multiplicación completa ($N=3072$, $P=96$, 4 nodos)}} \\
+1D global / 1D jerárquica & Ethernet & 6.260 & 3.217 & 1.95 & 2.11 & separados \\
+1D global / 1D jerárquica & Wi-Fi & 101.082 & 51.479 & 1.96 & 2.13 & separados \\
+\addlinespace[2pt]\multicolumn{7}{l}{\textit{Difusión aislada de 75.5 MB ($P=16$)}} \\
+Global / jerárquica, 4 nodos & Ethernet & 4.294 & 2.034 & 2.11 & 4.33 & separados \\
+Global / jerárquica, 4 nodos & Wi-Fi & 133.043 & 30.464 & 4.37 & 4.41 & separados \\
+\texttt{knomial} / jerárquica, 4 nodos & Ethernet & 1.977 & 2.034 & 0.97 & 1.00 & separados \\
+\texttt{knomial} / jerárquica, 4 nodos & Wi-Fi & 29.575 & 30.464 & 0.97 & 1.00 & separados \\
+Global: 4 nodos / 1 nodo & Ethernet & 4.294 & 0.116 & 37.08 & -- & separados \\
+\addlinespace[2pt]\multicolumn{7}{l}{\textit{Partición del problema ($N=3072$, $P=64$, 4 nodos)}} \\
+1D / SUMMA 2D & Ethernet & 3.147 & 5.492 & 0.57 & 0.53 & separados \\
+1D / SUMMA 2D & Wi-Fi & 51.728 & 87.314 & 0.59 & 0.51 & separados \\
+\addlinespace[2pt]\multicolumn{7}{l}{\textit{Cuatro nodos frente a uno (1D global)}} \\
+$T_{96}/T_{24}$, $N=3072$ & Ethernet & 6.260 & 0.649 & 9.65 & -- & separados \\
+$T_{96}/T_{24}$, $N=3072$ & Wi-Fi & 101.082 & 0.666 & 151.70 & -- & separados \\
+$T_{96}/T_{24}$, $N=6144$ & Ethernet & 25.194 & 5.279 & 4.77 & -- & separados \\
+$T_{96}/T_{24}$, $N=7168$ & Ethernet & 35.116 & 7.686 & 4.57 & -- & separados \\
+\addlinespace[2pt]\multicolumn{7}{l}{\textit{Reparto del trapecio: simétrico / asimétrico}} \\
+$n=10^8$, $P=24$ & Ethernet & 0.0072 & 0.0042 & 1.70 & -- & \textbf{solapan} \\
+$n=10^8$, $P=96$ & Ethernet & 0.0020 & 0.0019 & 1.07 & -- & \textbf{solapan} \\
+$n=10^{11}$, $P=24$ & Ethernet & 5.183 & 4.940 & 1.05 & -- & \textbf{solapan} \\
+$n=10^{11}$, $P=96$ & Ethernet & 1.012 & 1.046 & 0.97 & -- & separados \\
+\bottomrule
+\end{tabular}
+\end{center}

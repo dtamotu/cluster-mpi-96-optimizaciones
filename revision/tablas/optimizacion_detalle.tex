@@ -1,0 +1,41 @@
+\begin{longtable}{llrrrlrrrr}
+\caption{Campaña de optimización: medianas de las corridas válidas, con mínimo y máximo. TX suma la transmisión de las interfaces de los nodos participantes.}\label{tab:opt-detalle}\\
+\toprule Red & Prueba & Tamaño & $P$ & Nodos & Variante & Reps. & $T$ med. (s) & Rango (s) & TX (MB) \\
+\midrule\endfirsthead
+\toprule Red & Prueba & Tamaño & $P$ & Nodos & Variante & Reps. & $T$ med. (s) & Rango (s) & TX (MB) \\
+\midrule\endhead
+Ethernet & bcast & 3072 & 16 & 1 & hier & 3 & 0.124 & 0.117--0.129 & 0.0 \\
+Ethernet & bcast & 3072 & 16 & 1 & world & 3 & 0.116 & 0.116--0.127 & 0.0 \\
+Ethernet & bcast & 3072 & 16 & 4 & hier & 3 & 2.034 & 2.030--2.035 & 238.4 \\
+Ethernet & bcast & 3072 & 16 & 4 & tuned-knomial & 3 & 1.977 & 1.974--1.983 & 238.4 \\
+Ethernet & bcast & 3072 & 16 & 4 & tuned-scatter & 3 & 4.372 & 4.010--4.374 & 1032.4 \\
+Ethernet & bcast & 3072 & 16 & 4 & world & 3 & 4.294 & 4.003--4.351 & 1032.5 \\
+Wi-Fi & bcast & 3072 & 16 & 4 & hier & 3 & 30.464 & 29.791--31.940 & 228.0 \\
+Wi-Fi & bcast & 3072 & 16 & 4 & tuned-knomial & 3 & 29.575 & 29.354--29.650 & 228.6 \\
+Wi-Fi & bcast & 3072 & 16 & 4 & tuned-scatter & 3 & 134.479 & 132.263--134.957 & 1006.5 \\
+Wi-Fi & bcast & 3072 & 16 & 4 & world & 3 & 133.043 & 131.304--133.633 & 1006.5 \\
+Ethernet & matriz & 3072 & 24 & 1 & 1d & 5 & 0.649 & 0.633--0.719 & 0.0 \\
+Ethernet & matriz & 3072 & 24 & 1 & 1d-hier & 5 & 0.691 & 0.677--0.799 & 0.0 \\
+Ethernet & matriz & 3072 & 64 & 4 & 1d & 3 & 3.147 & 3.147--3.148 & 358.0 \\
+Ethernet & matriz & 3072 & 64 & 4 & 2d & 3 & 5.492 & 5.469--5.546 & 678.1 \\
+Ethernet & matriz & 3072 & 96 & 4 & 1d & 5 & 6.260 & 6.233--6.266 & 755.5 \\
+Ethernet & matriz & 3072 & 96 & 4 & 1d-hier & 5 & 3.217 & 3.088--3.288 & 358.9 \\
+Ethernet & matriz & 6144 & 24 & 1 & 1d & 3 & 5.279 & 4.998--7.343 & 0.6 \\
+Ethernet & matriz & 6144 & 96 & 4 & 1d & 3 & 25.194 & 25.065--25.322 & 3022.4 \\
+Ethernet & matriz & 7168 & 24 & 1 & 1d & 3 & 7.686 & 7.561--7.703 & 0.4 \\
+Ethernet & matriz & 7168 & 96 & 4 & 1d & 3 & 35.116 & 35.086--35.130 & 4113.9 \\
+Wi-Fi & matriz & 3072 & 24 & 1 & 1d & 5 & 0.666 & 0.581--0.722 & 0.0 \\
+Wi-Fi & matriz & 3072 & 24 & 1 & 1d-hier & 5 & 0.673 & 0.608--4.769 & 0.0 \\
+Wi-Fi & matriz & 3072 & 64 & 4 & 1d & 3 & 51.728 & 48.975--52.122 & 343.0 \\
+Wi-Fi & matriz & 3072 & 64 & 4 & 2d & 3 & 87.314 & 86.305--87.779 & 677.7 \\
+Wi-Fi & matriz & 3072 & 96 & 4 & 1d & 5 & 101.082 & 100.293--102.991 & 729.3 \\
+Wi-Fi & matriz & 3072 & 96 & 4 & 1d-hier & 5 & 51.479 & 50.817--52.659 & 342.9 \\
+Ethernet & trapecio & $10^{8}$ & 24 & 1 & asimetrico & 3 & 0.004 & 0.004--0.007 & 0.0 \\
+Ethernet & trapecio & $10^{8}$ & 24 & 1 & simetrico & 3 & 0.007 & 0.005--0.008 & 0.0 \\
+Ethernet & trapecio & $10^{8}$ & 96 & 4 & asimetrico & 3 & 0.002 & 0.002--0.002 & 0.6 \\
+Ethernet & trapecio & $10^{8}$ & 96 & 4 & simetrico & 3 & 0.002 & 0.001--0.006 & 0.4 \\
+Ethernet & trapecio & $10^{11}$ & 24 & 1 & asimetrico & 3 & 4.940 & 4.528--5.153 & 0.1 \\
+Ethernet & trapecio & $10^{11}$ & 24 & 1 & simetrico & 3 & 5.183 & 4.753--5.379 & 0.0 \\
+Ethernet & trapecio & $10^{11}$ & 96 & 4 & asimetrico & 3 & 1.046 & 1.026--1.198 & 0.5 \\
+Ethernet & trapecio & $10^{11}$ & 96 & 4 & simetrico & 3 & 1.012 & 1.004--1.024 & 0.8 \\
+\bottomrule\end{longtable}

@@ -1,0 +1,30 @@
+\section{Conclusiones y límites de lo que podemos defender}\label{sec:conclusiones}
+
+\subsection{Conclusiones}
+
+\begin{enumerate}
+\item \textbf{El tipo de problema determina si conviene distribuirlo.} El trapecio grande obtiene aceleraciones de 68.56 y 68.20 por Ethernet con 96 procesos en la primera y la segunda batería. En matrices, el mejor tiempo fue siempre un nodo con 24 procesos: en las dos baterías, en todos los tamaños hasta $N=6144$, y en la campaña hasta $N=7168$.
+\item \textbf{La comunicación explica la penalización de matrices.} Con 96 procesos y $N=3072$, el cálculo máximo ronda 0.10 s en ambas redes, mientras el total es 6.175 s por cable y 101.042 s por Wi-Fi. Las fases de distribución y reunión concentran los tiempos grandes.
+\item \textbf{Reducir las copias entre nodos es la optimización que funcionó.} La difusión jerárquica redujo a la mitad el tiempo y el tráfico con 96 procesos en las dos redes, con rangos separados en cinco repeticiones. La selección \texttt{knomial} de Open MPI produjo TX similar y una mediana ligeramente menor en la difusión aislada, sin cambiar el código.
+\item \textbf{No todas las ideas de optimización se confirmaron.} SUMMA 2D fue más lenta que 1D con $P=64$, y el reparto asimétrico P/E no mostró una mejora consistente en el trapecio.
+\item \textbf{La lentitud de madrugada está registrada, pero no se reproduce.} La corrida de 906.351 s usó 8 procesos y pasó 889.744 s en el máximo de \texttt{Bcast}; su repetición tardó 322.513 s con el mismo cálculo. Otra serie, con 16 procesos, midió unos 1112 MB en 1D y 423 MB en 2D. No son cifras de una misma ejecución.
+\item \textbf{Optimizar caché y reducir tráfico son mejoras distintas.} Los bloques aceleran el cálculo local; la partición y la difusión cambian las comunicaciones. Añadir \texttt{vader} explicita los transportes, pero no prueba por sí solo la causa del cambio de volumen.
+\item \textbf{La comparación entre campañas depende del peso del cálculo.} En matrices con 96 procesos, las corridas únicas quedan a menos de un 2\,\% de las medianas posteriores; con 24 procesos difieren entre un 19 y un 37\,\% entre momentos y binarios.
+\end{enumerate}
+
+\subsection{Qué cambió respecto del informe anterior}
+Ahora sí se usa Ethernet; ya no queda como una propuesta futura. Se incorporó el trapecio, se llegó a 96 procesos y se incluyó un punto explícito con un nodo completo. La segunda batería amplió tamaños, registró TX+RX del servidor y contrastó sus 75 logs con CSV y JSON. La campaña de optimización añadió repeticiones, variantes de difusión, SUMMA 2D y tamaños mayores, con sellos SHA-256. Esta versión revisada añade la auditoría de la evidencia y el análisis de variabilidad.
+
+\subsection{Qué haría falta para confirmar las causas pendientes}
+\begin{itemize}
+\item Recompilar la campaña con \texttt{-O3 -march=native -funroll-loops} y repetir las configuraciones con 24 procesos, para separar el efecto del binario del momento de ejecución.
+\item Medir la multiplicación completa con $P=96$ y la selección \texttt{knomial}, para confirmar que dos opciones MCA sustituyen a la versión jerárquica escrita a mano.
+\item Registrar el componente y el algoritmo colectivo elegidos en cada corrida, junto con los bytes por nodo.
+\item Repetir las baterías con al menos tres corridas por configuración, alternando redes y en orden aleatorio.
+\item Añadir contadores TCP y de radio para estudiar reintentos, y contadores de memoria para contrastar el modelo de caché.
+\end{itemize}
+Estas verificaciones quedan \textbf{propuestas}; no se presentan como experimentos ya realizados.
+
+\begin{idea}
+La conclusión más defendible es que el clúster acelera los trabajos con suficiente cálculo independiente, mientras las comunicaciones pueden anular esa ventaja. Reducir las copias de datos entre nodos fue la mejora más grande y reproducible para matrices. Las cifras del informe permiten mostrarlo sin ocultar los resultados desfavorables ni convertir modelos de tráfico en mediciones.
+\end{idea}
