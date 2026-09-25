@@ -27,9 +27,8 @@ El mejor punto para matrices siguió siendo un nodo con 24 procesos. Para $N=614
 
 \subsection{Qué cambió respecto de la imagen inicial}
 
-La ejecución de madrugada con ocho procesos, $N=3072$ y Wi-Fi tardó 906.351 s y registró 889.744 s en el máximo de \texttt{MPI\_Bcast(B)}. Ese caso sigue siendo un antecedente válido, pero no se mezcla con las campañas nuevas: usó otro ejecutable, otro kernel y otra instrumentación. La campaña controlada repite la pregunta con afinidad fija, kernel por bloques, comprobaciones de huellas y una separación explícita entre 1D global y 1D jerárquica. Por eso ahora se puede atribuir la mejora a una hipótesis comprobada en esta topología, sin afirmar que el comando por sí solo revele el algoritmo interno de Open MPI.
+La ejecución de madrugada con ocho procesos repartidos entre cuatro nodos (dos por nodo), $N=3072$ y Wi-Fi tardó 906.351 s y registró 889.744 s en el máximo de \texttt{MPI\_Bcast(B)}. Ese caso sigue siendo un antecedente válido, pero no se mezcla con las campañas nuevas: usó otro ejecutable, otro kernel y otra instrumentación. La campaña controlada repite la pregunta con afinidad fija, kernel por bloques, comprobaciones de huellas y una separación explícita entre 1D global y 1D jerárquica. Por eso ahora se puede atribuir la mejora a una hipótesis comprobada en esta topología, sin afirmar que el comando por sí solo revele el algoritmo interno de Open MPI.
 
 \subsection{Alcance y reproducibilidad}
 
 Los tiempos provienen de \texttt{MPI\_Wtime}; los contadores de red se describen junto a su alcance y no se presentan como bytes útiles exactos de una colectiva. Cada corrida nueva conserva su comando, entorno, log y resultado en \texttt{resultados\_optimizacion/}. Los scripts de esta carpeta regeneran tablas, figuras, auditorías y este PDF sin depender de los nodos remotos cuando se usan las copias de evidencia.
-

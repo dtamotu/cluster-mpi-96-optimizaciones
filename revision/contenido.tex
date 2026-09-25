@@ -9,7 +9,7 @@ La pregunta central es: \textbf{¿cuánto tiempo ahorramos al repartir el cálcu
 \end{idea}
 
 \begin{idea}
-\textbf{El caso que motivó el estudio: 15 minutos por Wi-Fi.} A las 00:58:05 del 24 de septiembre, multiplicar matrices de $3072\times3072$ con \textbf{8 procesos} tardó \textbf{906.351 s}. El log registró un máximo de \textbf{889.744 s en \archivo{MPI_Bcast(B)}} y solo \textbf{1.735 s de cálculo}. El cociente $889.744/906.351=98.17\%$ muestra dónde se concentró el tiempo registrado; los máximos por fase pueden corresponder a rangos distintos y no se suman. En esta ejecución no se midieron MB transmitidos.
+\textbf{El caso que motivó el estudio: 15 minutos por Wi-Fi.} A las 00:58:05 del 24 de septiembre, multiplicar matrices de $3072\times3072$ con \textbf{8 procesos distribuidos entre cuatro nodos, dos en cada uno} (servidor, workers1, workers2 y workers4), tardó \textbf{906.351 s}. El log registró un máximo de \textbf{889.744 s en \archivo{MPI_Bcast(B)}} y solo \textbf{1.735 s de cálculo}. El cociente $889.744/906.351=98.17\%$ muestra dónde se concentró el tiempo registrado; los máximos por fase pueden corresponder a rangos distintos y no se suman. En esta ejecución no se midieron MB transmitidos.
 \end{idea}
 
 \subsection{Qué datos usa este informe}

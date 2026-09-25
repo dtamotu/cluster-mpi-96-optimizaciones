@@ -9,7 +9,7 @@ La pregunta central es: \textbf{¿cuánto tiempo ahorramos al repartir el cálcu
 \end{idea}
 
 \begin{idea}
-\textbf{El caso que motivó el estudio: 15 minutos por Wi-Fi.} A las 00:58:05 del 24 de septiembre, multiplicar matrices de $3072\times3072$ con \textbf{8 procesos} tardó \textbf{906.351 s}. El log registró un máximo de \textbf{889.744 s en \archivo{MPI_Bcast(B)}} y solo \textbf{1.735 s de cálculo}. El cociente $889.744/906.351=98.17\%$ muestra dónde se concentró el tiempo registrado; los máximos por fase pueden corresponder a rangos distintos y no se suman. En esta ejecución no se midieron MB transmitidos.
+\textbf{El caso que motivó el estudio: 15 minutos por Wi-Fi.} A las 00:58:05 del 24 de septiembre, multiplicar matrices de $3072\times3072$ con \textbf{8 procesos distribuidos entre cuatro nodos, dos en cada uno} (servidor, workers1, workers2 y workers4), tardó \textbf{906.351 s}. El log registró un máximo de \textbf{889.744 s en \archivo{MPI_Bcast(B)}} y solo \textbf{1.735 s de cálculo}. El cociente $889.744/906.351=98.17\%$ muestra dónde se concentró el tiempo registrado; los máximos por fase pueden corresponder a rangos distintos y no se suman. En esta ejecución no se midieron MB transmitidos.
 \end{idea}
 
 \subsection{Qué datos usa este informe}
@@ -453,7 +453,7 @@ El modelo de 339.74 MB es compatible en orden de magnitud con los 357--358 MB hi
 \begin{enumerate}
 \item \textbf{El tipo de problema determina si conviene distribuirlo.} Trapecio grande obtiene aceleraciones de 68.56 y 68.20 por Ethernet con 96 procesos en la primera y segunda batería, respectivamente. Matrices de $N=3072$ funciona mejor con 24 procesos en un nodo que con 96 en cuatro nodos en ambas.
 \item \textbf{La comunicación explica gran parte de la penalización de matrices.} En la primera batería, con 96 procesos y $N=3072$, el cálculo máximo ronda 0.10 s en ambas redes, mientras el total es 6.175 s por cable y 101.042 s por Wi-Fi. Las fases de distribución y reunión concentran los tiempos grandes. La segunda batería confirma que el menor tiempo se obtuvo con 24 procesos para todos los tamaños medidos.
-\item \textbf{La lentitud de madrugada está registrada.} La corrida de 906.351 s usó 8 procesos y pasó 889.744 s en el máximo de \texttt{Bcast}. Otra serie, con 16 procesos, midió unos 1112 MB en 1D y 423 MB en 2D. No son cifras de una misma ejecución.
+\item \textbf{La lentitud de madrugada está registrada.} La corrida de 906.351 s usó 8 procesos, dos en cada uno de cuatro nodos, y pasó 889.744 s en el máximo de \texttt{Bcast}. Otra serie, con 16 procesos, midió unos 1112 MB en 1D y 423 MB en 2D. No son cifras de una misma ejecución.
 \item \textbf{Optimizar caché y reducir tráfico son mejoras distintas.} Los bloques aceleran el cálculo local. La partición 2D cambia las comunicaciones. Añadir \texttt{vader} explicita los transportes, pero no prueba por sí solo la causa del cambio de volumen.
 \item \textbf{Las dos baterías permiten comparar sus configuraciones, no estimar estabilidad.} Se hizo una ejecución por caso. La variación histórica muestra por qué no debe describirse un tiempo Wi-Fi como garantizado.
 \end{enumerate}
