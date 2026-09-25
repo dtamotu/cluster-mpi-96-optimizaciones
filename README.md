@@ -1,27 +1,29 @@
 # Informe actualizado: 96 núcleos, Ethernet y Wi-Fi
 
 Esta copia derivada añade los experimentos de optimización en
-[OPTIMIZACIONES.md](OPTIMIZACIONES.md) y el informe nuevo en
-[informe_optimizacion.tex](informe_optimizacion.tex). Conserva a continuación
-las instrucciones del informe anterior y sus datos originales.
+[OPTIMIZACIONES.md](OPTIMIZACIONES.md) y el informe final integrado en
+[informe_final.tex](informe_final.tex). Conserva las instrucciones del informe
+anterior, sus datos originales y la evidencia nueva.
 
-Repositorio: [github.com/dtamotu/cluster-mpi-96](https://github.com/dtamotu/cluster-mpi-96) (privado).
+Repositorio: [github.com/dtamotu/cluster-mpi-96-optimizaciones](https://github.com/dtamotu/cluster-mpi-96-optimizaciones) (privado).
 
-Abrir `main.pdf`. El documento conserva el diseño de carátula, integrantes, curso,
-profesor y estructura narrativa de `informe_alumno_completo/main.tex`; adapta el
-título para incorporar trapecio, Ethernet y dos baterías de hasta 96 procesos.
+Abrir `informe_final.pdf`. El documento conserva la carátula, integrantes, curso,
+profesor y narrativa histórica, y añade el resumen ejecutivo y la campaña final
+de optimización. `informe_optimizacion.pdf` queda como informe técnico acotado
+de la campaña nueva.
 
 ## Reconstrucción
 
 ```bash
 cd /home/alumno16/informe_actual_96
-./compilar.sh
+./compilar_final.sh
 ```
 
 Requiere Python 3 con matplotlib/numpy, pdflatex y los paquetes LaTeX del informe
 de referencia. La reconstrucción solo lee las copias de evidencia; no ejecuta MPI.
 
-- `main.tex`: portada, estilo y estructura.
+- `informe_final.tex`: portada y composición del informe integrado.
+- `main.tex`: versión histórica del informe completo.
 - `contenido.tex` y `ampliacion.tex`: metodología, resultados e interpretación.
 - `anexos.tex`: configuración, comandos, scripts y fuentes.
 - `generar_datos.py`: tablas, métricas, figuras y verificaciones de consistencia.
@@ -31,6 +33,12 @@ de referencia. La reconstrucción solo lee las copias de evidencia; no ejecuta M
 - `src/` y `scripts/`: copias de código y lanzadores de las pruebas.
 - `medir_trafico.sh`: herramienta opcional para una ejecución futura con contadores
   TX. No se ejecutó para generar los resultados del informe.
+
+La campaña nueva usada por el informe final suma 82 ejecuciones de matrices y
+difusión, más 36 ejecuciones extra de tamaños mayores y trapecio. Todas las 118
+filas válidas fueron auditadas contra sus logs y selladas con SHA-256. El script
+`compilar_final.sh` vuelve a generar las tablas, figuras y el PDF usando esas
+copias locales; no necesita que los cuatro nodos estén conectados.
 
 Las dos baterías tienen una sola ejecución por configuración. La segunda suma
 75 ejecuciones y registra TX+RX solo de la interfaz del servidor. Los MB de 1112

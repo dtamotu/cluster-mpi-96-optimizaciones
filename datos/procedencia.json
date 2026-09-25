@@ -307,7 +307,7 @@
   {
     "original": "/home/alumno16/experimentos_96/src/mpi_matrix_2d.c",
     "copia": "src/mpi_matrix_2d.c",
-    "sha256": "3f637894d7d696e10628302156288665be66d3397c2221d5a5f9c0e4507dc260"
+    "sha256": "94429340c2b53480e5cd5dea56afa5d1527e388739e41a5800657d812f39864c"
   },
   {
     "original": "/home/alumno16/experimentos_96/src/kernels.h",

@@ -1,0 +1,35 @@
+\section{Resumen ejecutivo}
+
+Este documento reúne y vuelve a interpretar toda la evidencia disponible del proyecto de multiplicación de matrices y regla del trapecio en un clúster de cuatro nodos con 96 núcleos físicos. Se mantienen separados los experimentos históricos, la batería ampliada y la campaña de optimización para que cada comparación conserve su protocolo y su alcance.
+
+\begin{center}
+\small
+\begin{tabular}{p{3.5cm}r p{8.0cm}}
+\toprule
+Fuente & Registros & Qué permite afirmar \\
+\midrule
+Primera batería & 50 & Comparación inicial entre Ethernet y Wi-Fi con $P=1,24,48,72,96$; una corrida por configuración. \\
+Batería ampliada & 75 & Repite tamaños y añade $N=512,4096,6144$; conserva TX+RX del servidor y comprobaciones de consistencia. \\
+Optimización controlada & 118 & Medianas y rangos de 3 o 5 repeticiones; compara difusión jerárquica, SUMMA 2D, algoritmos tuned, tamaños mayores y reparto asimétrico. \\
+\midrule
+Total documentado & 243 & Registros de ejecución conservados en CSV, logs, metadatos y sellos SHA-256. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Respuesta breve a la pregunta de rendimiento}
+
+La optimización más consistente fue reducir la cantidad de tráfico entre nodos. Para $N=3072$ y $P=96$, la variante 1D jerárquica bajó la mediana de 6.260 a 3.217 s por Ethernet y de 101.082 a 51.479 s por Wi-Fi. En ambos casos el tráfico TX agregado cayó aproximadamente a la mitad: de 755.5 a 358.9 MB y de 729.3 a 342.9 MB, respectivamente. La mejora aparece en el programa completo y se confirma con una difusión aislada de $B$ de 75.5 MB: por Wi-Fi, la variante jerárquica tardó 30.464 s frente a 133.043 s de la colectiva global.
+
+La partición 2D probada con $P=64$ no mejoró el tiempo completo: por Ethernet dio 5.492 s frente a 3.147 s de 1D, y por Wi-Fi 87.314 s frente a 51.728 s. El resultado no invalida SUMMA en general; indica que esta implementación, este tamaño y esta topología introducen más pasos y empaquetamiento que los que ahorran.
+
+El mejor punto para matrices siguió siendo un nodo con 24 procesos. Para $N=6144$ y $7168$ por Ethernet, cuatro nodos con 96 procesos tardaron 4.77 y 4.57 veces más que un nodo con 24 procesos. El trapecio grande presenta el comportamiento contrario: con $n=10^{11}$ la variante asimétrica tardó 4.940 s con 24 procesos y 1.046 s con 96; el cálculo independiente es suficiente para amortizar la reducción colectiva.
+
+\subsection{Qué cambió respecto de la imagen inicial}
+
+La ejecución de madrugada con ocho procesos, $N=3072$ y Wi-Fi tardó 906.351 s y registró 889.744 s en el máximo de \texttt{MPI\_Bcast(B)}. Ese caso sigue siendo un antecedente válido, pero no se mezcla con las campañas nuevas: usó otro ejecutable, otro kernel y otra instrumentación. La campaña controlada repite la pregunta con afinidad fija, kernel por bloques, comprobaciones de huellas y una separación explícita entre 1D global y 1D jerárquica. Por eso ahora se puede atribuir la mejora a una hipótesis comprobada en esta topología, sin afirmar que el comando por sí solo revele el algoritmo interno de Open MPI.
+
+\subsection{Alcance y reproducibilidad}
+
+Los tiempos provienen de \texttt{MPI\_Wtime}; los contadores de red se describen junto a su alcance y no se presentan como bytes útiles exactos de una colectiva. Cada corrida nueva conserva su comando, entorno, log y resultado en \texttt{resultados\_optimizacion/}. Los scripts de esta carpeta regeneran tablas, figuras, auditorías y este PDF sin depender de los nodos remotos cuando se usan las copias de evidencia.
+

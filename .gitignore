@@ -7,6 +7,10 @@
 /informe_optimizacion.log
 /informe_optimizacion.out
 /informe_optimizacion.toc
+/informe_final.aux
+/informe_final.log
+/informe_final.out
+/informe_final.toc
 /bin/
 *.fls
 *.fdb_latexmk

@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-tabla,es-noshorthands]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{needspace}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{float}
+\usepackage{pdflscape}
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    columns=fullflexible, keepspaces=true, upquote=true,
+    numbers=left, numberstyle=\tiny, numbersep=6pt, xleftmargin=1.5em,
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1 {Ó}{{\'O}}1 {Á}{{\'A}}1,
+    backgroundcolor=\color{white}, frame=single, rulecolor=\color{black},
+    breaklines=true, keywordstyle=\bfseries, commentstyle=\itshape,
+    tabsize=4, showstringspaces=false
+}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{UNSA -- Ciencia de la Computación}
+\rhead{Informe final MPI}
+\cfoot{\thepage}
+\usepackage{microtype}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=black,citecolor=black,
+  pdftitle={Informe final reproducible de MPI},
+  pdfauthor={Paredes Malaga Jose Carlos; Jheeremy Manuel Alvarez Astete; Jose Alejandro Machaca Muniz; David Tamo Turpo; Wilson Ramos}}
+\newtcolorbox{idea}{colback=white,colframe=black,arc=2pt,boxrule=0.6pt,left=6pt,right=6pt}
+\setlength{\emergencystretch}{2em}
+\setlength{\parskip}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\newcommand{\archivo}[1]{\nolinkurl{#1}}
+\newcommand{\figura}[3]{\begin{figure}[H]\centering\includegraphics[width=#2\linewidth]{img/#1}\caption{#3}\end{figure}}
+
+\begin{document}
+\begin{titlepage}
+    \centering
+    \vspace*{1.2cm}
+    {\scshape\LARGE Universidad Nacional de San Agustín \par}
+    \vspace{0.3cm}
+    {\scshape\large Escuela Profesional de Ciencia de la Computación \par}
+    \vspace{2.1cm}
+    \rule{\linewidth}{0.5mm}\\[0.4cm]
+    {\huge\bfseries Multiplicación de Matrices y Trapecio\\[0.12cm]}
+    {\Large Informe final reproducible de optimización MPI\\[0.2cm]}
+    {\normalsize\itshape Ethernet, Wi-Fi, difusión jerárquica y 243 registros documentados\\[0.35cm]}
+    \rule{\linewidth}{0.5mm}
+    \vspace{2.4cm}
+    \begin{minipage}[t]{0.5\textwidth}
+        \textbf{Integrantes:}\\
+        Paredes Malaga José Carlos\\
+        Jheeremy Manuel Alvarez Astete\\
+        Jose Alejandro Machaca Muñiz\\
+        David Tamo Turpo\\
+        Wilson Ramos
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.42\textwidth}
+        \raggedleft
+        \textbf{Curso:}\\
+        Computación Paralela y Distribuida\\[0.2cm]
+        \textbf{Profesor:}\\
+        Alvaro Henry Mamani Aliaga
+    \end{minipage}
+    \vfill
+    {\large Repositorio: \url{https://github.com/dtamotu/cluster-mpi-96-optimizaciones}\par}
+    {\large Arequipa, Perú -- 25 de septiembre de 2026\par}
+\end{titlepage}
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+\input{resumen_final}
+\input{contenido}
+\input{optimizacion_final}
+\clearpage
+\appendix
+\input{anexos}
+\end{document}
+
