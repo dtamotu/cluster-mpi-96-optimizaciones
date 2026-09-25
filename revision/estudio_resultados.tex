@@ -1,0 +1,144 @@
+\section{Resultados: antecedentes y baterías}
+
+\subsection{Los 906 segundos: observación y límites de la explicación}
+
+El log \archivo{datos/historicos/repetir_profiling_cluster.log} registra el inicio del caso central el 24 de septiembre a las 00:58:05. La configuración fue $N=3072$, ocho procesos y cuatro nodos por Wi-Fi. El comando conservado en el script es:
+\begin{lstlisting}[language=bash]
+mpirun -H servidor:2,workers1:2,workers2:2,workers4:2 \
+  -np 8 \
+  --mca btl_tcp_if_include 10.7.134.0/23 \
+  --mca oob_tcp_if_include 10.7.134.0/23 \
+  /tmp/mpi_matrix_profiling 3072
+\end{lstlisting}
+
+El tiempo total fue 906.351077 s; el máximo de difusión de $B$, 889.744162 s; el máximo de cálculo, 1.735076 s. El cociente entre difusión y total es 98.17\,\%. Indica que un rango pasó casi todo el intervalo observado dentro de esa llamada, incluyendo sus esperas. No es un reparto aditivo de todo el tiempo entre fases. El máximo de reunión fue también muy alto, 885.556909 s: sumarlo al de difusión produciría una interpretación incorrecta.
+
+\begin{table}[H]\caption{Serie original por Wi-Fi con dos repeticiones. $P=4,8,16$ usa respectivamente 1, 2 y 4 procesos en cada uno de los cuatro nodos. Todos los casos son de $N=3072$.}
+\input{tablas/madrugada_original}
+\end{table}
+
+Con los mismos ocho procesos, la segunda ejecución tardó 322.513 s y el cálculo permaneció alrededor de 1.737 s. La variación principal se produjo fuera del cálculo. Esto respalda estudiar las comunicaciones; no identifica por sí solo interferencia, retransmisiones o el algoritmo interno responsable. No se conservaron contadores TCP ni de radio que permitan decidir entre esas causas.
+
+Las cifras de aproximadamente 1112 MB para 1D y 423 MB para 2D pertenecen a otra serie con 16 procesos, cuatro por nodo. En esa serie, la mediana de 1D fue 330.818 s y la de 2D, 122.928 s, con valores 2D de 66.172 y 179.684 s. La dispersión y el protocolo distinto impiden trasladar ese factor de mejora a la campaña posterior. Las tablas históricas completas se conservan en el anexo.
+
+\subsection{Por qué las teselas ayudaron al cálculo local}
+
+El antecedente de un solo equipo compara \texttt{ikj}, \texttt{tiled} 1D y \texttt{tiled} 2D con $N=3072$. Son medianas de tres repeticiones históricas, no ejecuciones de la campaña de difusión:
+
+\begin{table}[H]\caption{Antecedente local: tiempos totales en segundos. Los casos 2D requieren un número cuadrado de procesos.}
+\input{tablas/local_historico}
+\end{table}
+
+Con un proceso, 1D pasa de 7.151 a 3.934 s al usar teselas, un factor aproximado de 1.82. Con 24 procesos, pasa de 5.572 a 0.503 s, un factor 11.07. Esto muestra que la organización local puede cambiar el resultado aun con la misma complejidad cúbica. Es coherente con mayor reutilización de datos, pero no mide fallos de caché ni bytes de DRAM. Una cuenta basada en referencias del bucle, como $8N^3\simeq231.93$ GB para $N=3072$, describe accesos lógicos posibles; no es una medición de tráfico de memoria.
+
+Este antecedente también impide declarar 24 procesos como óptimo universal: con 1D tiled, 16 procesos dieron 0.474 s frente a 0.503 s con 24; con 2D y 16 procesos se observaron 0.381 s. El barrido fino por número de procesos necesita repetirse con el binario actual y condiciones compartidas. La afirmación válida para las baterías es que 24 fue el mejor punto \emph{entre} $1,24,48,72,96$.
+
+\subsection{Matrices en las baterías: la transición al segundo nodo}
+
+\begin{table}[H]\caption{Primera batería, $N=3072$. $S_P=T_1/T_P$ se calcula dentro de cada red. Una corrida por celda.}
+\input{tablas/matrices_3072}
+\end{table}
+
+El paso de uno a 24 procesos reduce el tiempo Ethernet de 3.816 a 0.512 s. El paso de 24 a 48 procesos, que añade el primer nodo remoto, lo aumenta a 2.815 s. Con 96 procesos llega a 6.175 s y queda incluso por encima de la referencia de un proceso. Por Wi-Fi la penalización es mayor: 101.042 s con 96 procesos frente a 0.553 s con 24.
+
+\figura{matrices_tiempo.pdf}{0.96}{Primera batería: tiempos para los tres tamaños de matriz. Cada punto corresponde a una ejecución. Las tendencias entre redes se comparan dentro del mismo tamaño y distribución de procesos.}
+
+La segunda batería confirma el patrón para seis tamaños por Ethernet y cinco por Wi-Fi. Con $N=6144$, un nodo completo tarda 3.839 s y cuatro nodos 25.037 s. El cociente 6.52 procede de esas dos corridas únicas, no de una mediana repetida. El crecimiento de $N$ mejora la relación entre trabajo aritmético y datos, pero no elimina la penalización distribuida en esta batería.
+
+\begin{table}[H]\caption{Batería ampliada: tiempos totales de matrices, en segundos. Una ejecución por configuración; el guion indica que no se ejecutó esa prueba.}
+\input{tablas/ampliada_matrices}
+\end{table}
+
+\subsection{Trapecio: el tamaño cambia la conveniencia de distribuir}\label{sec:trap-grande}
+
+\begin{table}[H]\caption{Batería ampliada del trapecio. Las aceleraciones se refieren al proceso único de la misma red.}
+\input{tablas/ampliada_trapecio}
+\end{table}
+
+Para $n=10^{11}$, Ethernet pasa de 66.489 a 0.975 s con 96 procesos: $S_{96}=68.20$ y eficiencia $S_{96}/96=71.0$\,\%. La primera batería obtuvo $S_{96}=68.56$. Estos valores describen aceleración interna respecto del mismo programa MPI con un proceso. No son una medida de eficiencia energética ni una comparación con una implementación secuencial distinta.
+
+Para $n=10^8$, la batería ampliada pasa por Wi-Fi de 0.067826 s con un proceso a 0.115863 s con 96. La comunicación y coordinación pueden costar más que el trabajo ahorrado, aun cuando solo se reduce un escalar útil. Un mensaje pequeño necesita menos bytes, pero no tiene coste temporal nulo. La eficiencia tampoco debe interpretarse suponiendo que todos los núcleos tienen idéntico rendimiento: los equipos combinan núcleos P y E, y la asignación y frecuencia importan.
+
+\figura{trapecio_metricas.pdf}{0.94}{Primera batería del trapecio: métricas de escalamiento. Las mediciones únicas describen la tendencia; la campaña repetida posterior usa otro programa y se analiza aparte.}
+
+\section{Resultados: campaña de optimización}\label{sec:opt}
+
+\subsection{Difusión jerárquica en la multiplicación completa}
+
+La comparación principal conserva $N=3072$, kernel tiled 64, proceso por núcleo y el mismo binario. La variante global usa una difusión sobre todos los rangos; la jerárquica separa líderes y grupos locales. La figura muestra cada observación y evita que la mediana oculte la dispersión.
+
+\figura{analisis_repeticiones.pdf}{1.0}{Las 40 observaciones principales de matrices. Cada punto es una corrida; el segmento horizontal es la mediana de cinco. Los paneles tienen escalas verticales propias. Se mantiene el valor de 4.769 s del caso local jerárquico bajo la etiqueta Wi-Fi.}
+
+Con 96 procesos, Ethernet pasa de una mediana de 6.260 s (rango 6.233--6.266) a 3.217 s (3.088--3.288). Wi-Fi pasa de 101.082 s (100.293--102.991) a 51.479 s (50.817--52.659). Los rangos están separados. Además, todas las razones dentro de los bloques de repetición favorecen la jerarquía: entre 1.906 y 2.027 por Ethernet y entre 1.953 y 2.010 por Wi-Fi.
+
+Con 24 procesos locales, las medianas son próximas y los rangos se solapan. En Ethernet son 0.649 s global y 0.691 s jerárquico; en los lanzamientos etiquetados Wi-Fi, 0.666 y 0.673 s. Como los datos permanecen en un único equipo, esa etiqueta no implica que las matrices viajen por radio. El valor extremo de 4.769 s en la variante jerárquica local se conserva; su causa no está determinada. Excluirlo por resultar incómodo sesgaría el informe.
+
+\begin{table}[H]\caption{Medianas de los máximos por fase con 96 procesos, en segundos. Cada columna se resume por separado; no se debe sumar para reconstruir el total.}\label{tab:fases-nuevas}
+\input{tablas/analisis_fases}
+\end{table}
+
+El cálculo cambia poco entre variantes, mientras la difusión disminuye claramente. Esto concuerda con la intervención realizada en el código. La disminución de \texttt{Gather} no prueba que se haya optimizado esa llamada: su código no cambió y su tiempo puede contener espera. La comparación de fases identifica dónde aparecen duraciones grandes, pero no proporciona una descomposición exclusiva del tiempo ahorrado.
+
+\begin{table}[H]\caption{Magnitud de los efectos. A/B nombra el caso de referencia y su alternativa; las reducciones se calculan a partir de medianas. Mismo $N=3072$ y cuatro nodos. Un porcentaje negativo indica un aumento de TX.}\label{tab:efectos}
+\input{tablas/analisis_efectos}
+\end{table}
+
+La mejora distribuida no alcanza al nodo local: con Ethernet, 3.217/0.649 es aproximadamente 4.96; con Wi-Fi, 51.479/0.666 es 77.26. Estos cocientes comparan variantes y números de procesos diferentes y sirven para decidir cuál configuración observada terminó antes. No representan el efecto aislado de añadir una sola opción de MPI.
+
+\subsection{Microbenchmark: seleccionar la colectiva}
+
+Se difunden $3072^2$ dobles, equivalentes a 75.497 MB, con 16 procesos. En cuatro nodos se colocan cuatro procesos por nodo; el control local coloca los dieciséis en el servidor. Las variantes \texttt{tuned-knomial} y \texttt{tuned-scatter} solicitan al componente \texttt{tuned} los identificadores 7 y 8 mediante \texttt{coll\_tuned\_use\_dynamic\_rules=1}. La correspondencia de nombres se verifica en el código de Open MPI 4.1.6\cite{ompi-tuned}.
+
+\figura{analisis_bcast_puntos.pdf}{1.0}{Difusión aislada con 16 procesos distribuidos $4+4+4+4$. Tres observaciones por variante; segmentos: medianas. Escala logarítmica, indicada en el eje.}
+
+En Ethernet, las medianas global, jerárquica y knomial son 4.294, 2.034 y 1.977 s. En Wi-Fi son 133.043, 30.464 y 29.575 s. La solicitud scatter/allgather dio 4.372 y 134.479 s, próxima al caso global. Esa similitud no prueba que el caso global eligiera internamente ese algoritmo; falta la traza de selección.
+
+Knomial reduce la mediana frente a la jerárquica en 0.057 s por Ethernet y 0.888 s por Wi-Fi, aproximadamente 3\,\%. Las tres observaciones conservan la dirección de la diferencia. La mejora más importante es la que separa las variantes de bajo tráfico de la global, especialmente en Wi-Fi. No se midió todavía esta selección dentro de la multiplicación completa con 96 procesos: extrapolar directamente el factor del microbenchmark sería incorrecto.
+
+\subsection{Qué revelan los bytes de cada nodo}
+
+\begin{table}[H]\caption{Medianas de TX por nodo, en MB. M96: multiplicación completa con 96 procesos; B16: difusión aislada con 16. Total: mediana de la suma por corrida, que puede diferir de la suma de las cuatro medianas.}\label{tab:tx-nodos}
+\input{tablas/analisis_nodos}
+\end{table}
+
+\figura{analisis_tx_nodos.pdf}{1.0}{Distribución de TX en la difusión aislada. El volumen agregado parecido de jerárquica y knomial oculta un reparto distinto de la transmisión. Son contadores de interfaz, no una traza de cada mensaje MPI.}
+
+En Ethernet, la jerárquica registra alrededor de 79 MB en cada uno de los tres primeros nodos y casi cero en el cuarto. Knomial registra unos 238 MB en el servidor y menos de 1 MB en cada worker. El patrón Wi-Fi es semejante. La observación respalda que el reparto de transmisión cambió; identificar todos los saltos requeriría una traza de comunicaciones. En particular, total similar no significa mismo árbol ni misma presión sobre cada interfaz.
+
+Como referencia ideal de carga útil, hacer llegar una copia de $B$ a cada uno de tres nodos remotos exige $3M=226.492$ MB de transferencias entre nodos si cada copia cruza una sola vez. Los 228--238 MB observados en las variantes de bajo tráfico son próximos a esa referencia. La diferencia no se convierte en una tasa de retransmisiones: los contadores incluyen cabeceras, control y otros posibles tráficos. En la multiplicación completa se añaden reparto de $A$ y reunión de $C$, de modo que su TX no se compara directamente con el de Bcast aislado.
+
+\subsection{SUMMA 2D con el mismo número de procesos}
+
+Con 64 procesos, Ethernet dio 3.147 s para 1D y 5.492 s para 2D; Wi-Fi, 51.728 y 87.314 s. La partición 2D fue 1.74 y 1.69 veces más lenta según el cociente de medianas sin redondear. TX pasó de 358.0 a 678.1 MB por Ethernet y de 343.0 a 677.7 MB por Wi-Fi. Las tres razones por bloque favorecen 1D. No se compara 2D con 96 procesos, porque 96 no cumple la malla cuadrada que exige esta implementación.
+
+El resultado limita una hipótesis concreta: disminuir memoria por proceso no garantizó disminuir comunicación física ni tiempo completo con cuatro nodos y este tamaño. El análisis de la malla, la centralización inicial y los ocho pasos de difusión se desarrolla en la sección~\ref{sec:modelos}. No se concluye que SUMMA sea inferior para otras topologías, entradas distribuidas o implementaciones con solapamiento.
+
+\subsection{Matrices mayores y búsqueda de un cruce}
+
+\figura{optimizacion_tamano.pdf}{0.85}{1D global por Ethernet. Medianas con mínimo y máximo: cinco repeticiones para $N=3072$ y tres para $N=6144,7168$.}
+
+Con $N=6144$, las medianas son 5.279 s para 24 procesos y 25.194 s para 96; con $N=7168$, 7.686 y 35.116 s. El cociente $T_{96}/T_{24}$ baja de 9.65 a 4.77 y 4.57 al aumentar $N$. El patrón es compatible con un coste de cálculo que crece cúbicamente frente a buffers y transferencia que crecen cuadráticamente, pero tres tamaños no identifican un modelo predictivo fiable.
+
+No se observó un tamaño en el cual la versión distribuida 1D global superara al nodo local. Tampoco se ejecutó 1D jerárquica en los dos tamaños mayores. Por eso no se atribuye el mismo comportamiento a esa variante y no se extrapola un tamaño de cruce a partir de una recta. El modelo de memoria de la siguiente sección aporta otra restricción concreta.
+
+\subsection{Trapecio simétrico y ponderado}
+
+\figura{analisis_trapecio.pdf}{0.94}{Las 24 observaciones del trapecio por Ethernet. Tres repeticiones por variante, tamaño y número de procesos. Cada panel tiene su propia escala; los tiempos pequeños se mantienen en segundos.}
+
+\begin{table}[H]\caption{Tiempo y desbalance observados en cada repetición. Desbalance = máximo/mínimo del cálculo entre rangos.}\label{tab:trap-reps}
+\input{tablas/trapecio_repeticiones}
+\end{table}
+
+Para $n=10^{11}$ y 24 procesos, la mediana baja de 5.183 a 4.940 s, un 4.7\,\%. Los rangos se solapan: la tercera corrida simétrica es más rápida que dos ponderadas. Con 96 procesos, la mediana ponderada es 1.046 s frente a 1.012 s simétrica, un 3.4\,\% mayor; las tres comparaciones dentro del bloque favorecen el reparto simétrico. El peso 1.2658 no queda validado como una mejora general.
+
+El desbalance tampoco resume por sí solo el objetivo. Con 96 procesos, el reparto ponderado reduce el cociente máximo/mínimo en las dos primeras repeticiones, pero sus tiempos totales son mayores. Acercar duraciones puede ocurrir porque se ralentizó a un proceso antes rápido. La optimización debe minimizar el máximo absoluto y el total, no solamente igualar cocientes. Las salidas individuales de la calibración exploratoria del peso no se conservaron, por lo que no se utiliza como evidencia cuantitativa.
+
+\subsection{El coste completo del procedimiento}
+
+\begin{table}[H]\caption{Medianas del tiempo interno y del procedimiento de prueba. $\Delta$ es la mediana de las diferencias por corrida; no necesariamente equivale a restar las dos columnas de medianas.}\label{tab:pared}
+\input{tablas/analisis_pared}
+\end{table}
+
+Para matrices distribuidas por Ethernet, la jerarquía reduce aproximadamente a la mitad el tiempo interno, pero el tiempo de pared pasa de 9.275 a 6.434 s: una reducción cercana al 31\,\%. Los costes externos al algoritmo siguen presentes. En Wi-Fi, el cómputo distribuido tarda lo suficiente para que estos costes representen una fracción menor.
+
+El caso más claro es el trapecio pequeño: 96 procesos mejoran la mediana interna de 7.164 a 2.030 ms respecto de 24, pero el procedimiento tarda 2.918 s frente a 0.998 s. Para una operación aislada, la elección que gana dentro del cronómetro puede hacer esperar más al usuario. En un servicio con procesos persistentes y muchas integraciones se podría amortizar el lanzamiento, pero eso sería otro experimento. Esta distinción es necesaria antes de recomendar una configuración para uso real.

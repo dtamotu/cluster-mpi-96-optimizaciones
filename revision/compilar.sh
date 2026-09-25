@@ -8,6 +8,7 @@ mkdir -p "$MPLCONFIGDIR" tmp
 python3 generar_datos.py
 python3 generar_optimizacion.py
 python3 auditar_evidencia.py
+python3 generar_analisis.py
 
 for pasada in 1 2 3; do
   pdflatex -interaction=nonstopmode -halt-on-error informe_mejorado.tex \

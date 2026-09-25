@@ -5,15 +5,18 @@ Esta copia derivada añade los experimentos de optimización en
 [revision/informe_mejorado.tex](revision/informe_mejorado.tex) y su PDF en
 [revision/informe_mejorado.pdf](revision/informe_mejorado.pdf). La revisión
 incorpora auditoría de los datos, análisis de variabilidad y conclusiones
-corregidas; el informe anterior permanece en [informe_final.tex](informe_final.tex).
+corregidas. Esta edición profunda añade metodología experimental explícita,
+repeticiones individuales, tráfico por nodo, modelo de memoria, tiempo de pared
+y un plan priorizado de experimentos pendientes; el informe anterior permanece
+en [informe_final.tex](informe_final.tex).
 
 Repositorio: [github.com/dtamotu/cluster-mpi-96-optimizaciones](https://github.com/dtamotu/cluster-mpi-96-optimizaciones) (privado).
 
 Abrir `revision/informe_mejorado.pdf`. El documento conserva la carátula,
 integrantes, curso y narrativa histórica; también integra la campaña de
-optimización, una auditoría de las 243 ejecuciones y el análisis de las
-repeticiones. `informe_optimizacion.pdf` queda como informe técnico acotado de
-la campaña nueva.
+optimización, una auditoría de las 243 ejecuciones, el análisis de las
+repeticiones y el modelo de memoria 1D/2D. `informe_optimizacion.pdf` queda como
+informe técnico acotado de la campaña nueva.
 
 ## Reconstrucción
 
@@ -27,15 +30,19 @@ de referencia. La reconstrucción solo lee las copias de evidencia; no ejecuta M
 
 - `revision/informe_mejorado.tex`: portada y composición de la versión revisada.
 - `revision/auditar_evidencia.py`: coteja CSV, logs, contadores y sellos.
-- `revision/generar_optimizacion.py`: tabla resumen, repeticiones y figuras nuevas.
+- `revision/generar_optimizacion.py`: tablas resumen y figuras de la campaña.
+- `revision/generar_analisis.py`: análisis por repetición, tráfico por nodo, tiempo de pared,
+  memoria derivada del código y catálogo trazable de las 118 ejecuciones.
 - `informe_final.tex`: versión integrada anterior a la revisión.
 - `main.tex`: versión histórica del informe completo.
-- `contenido.tex` y `ampliacion.tex`: metodología, resultados e interpretación.
-- `anexos.tex`: configuración, comandos, scripts y fuentes.
+- `revision/estudio_metodologia.tex`, `estudio_resultados.tex`, `estudio_modelos.tex`,
+  `estudio_propuestas.tex` y `estudio_anexos.tex`: texto de esta edición profunda.
 - `generar_datos.py`: tablas, métricas, figuras y verificaciones de consistencia.
 - `datos/`: CSV, logs y JSON originales de ambas baterías; procedencia y SHA-256.
 - `fuentes/INFORME_ANALISIS_EXPANDIDO_96.md`: borrador preservado para contraste;
   los resultados citados en el PDF se cotejaron con CSV y logs.
+- `fuentes/codigo_baterias/`: fuentes recuperadas del commit histórico de las baterías,
+  separadas de la variante jerárquica actual.
 - `src/` y `scripts/`: copias de código y lanzadores de las pruebas.
 - `medir_trafico.sh`: herramienta opcional para una ejecución futura con contadores
   TX. No se ejecutó para generar los resultados del informe.

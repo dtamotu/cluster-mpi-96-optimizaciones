@@ -1,0 +1,57 @@
+\section{Modelos que ayudan a interpretar los resultados}\label{sec:modelos}
+
+\subsection{Cálculo, red y paralelismo útil}
+
+Una multiplicación densa requiere aproximadamente $2N^3$ operaciones aritméticas. Dividir filas reparte ese trabajo, pero cada rango sigue necesitando todo $B$. Un modelo orientativo es
+\[
+ T(N,P,H)\approx T_{\mathrm{reparto}}+T_{\mathrm{difusion}}+
+ T_{\mathrm{calculo}}+T_{\mathrm{reunion}}+T_{\mathrm{espera}},
+\]
+donde $H$ es el número de nodos. La expresión es un esquema de costes del camino crítico, no una instrucción para sumar los máximos impresos en los logs. Para mensajes de tamaño $m$, el modelo elemental $\alpha+\beta m$ separa latencia de coste por byte. En una colectiva intervienen varios mensajes, decisiones de algoritmo y posibles cuellos de botella compartidos; una sola $\alpha$ o $\beta$ no explica todo el clúster.
+
+En $N=3072$ hay unos 57.98 mil millones de operaciones. La mediana global local de 0.649 s corresponde aproximadamente a 89.4 GFLOP/s efectivos para la multiplicación completa; la jerárquica con 96 procesos y Ethernet, a 18.0 GFLOP/s. Se usa $2N^3/T_{Total}$ y se incluye distribución y reunión. Estas cifras no miden el pico de las CPU ni la tasa de su kernel aislado. El aumento de capacidad aritmética disponible no compensa el aumento de tiempo total.
+
+El trapecio necesita mucho menos intercambio por cantidad de trabajo. Al pasar de $10^8$ a $10^{11}$ evaluaciones, crece el cálculo por un factor mil sin multiplicar por mil el escalar final reducido. Por eso la misma infraestructura presenta un comportamiento opuesto al de matrices. Una ley de aceleración basada solo en una fracción serial constante sería insuficiente para matrices: aquí el coste de comunicación cambia con $P$, con el número de nodos y con la colectiva elegida.
+
+\subsection{Memoria 1D: contar por nodo, no sumar la RAM del clúster}
+
+Sea $M=8N^2$ bytes, $r=P/H$ procesos por nodo y $s_h$ la suma de filas asignadas a los procesos del nodo $h$. Las reservas grandes explícitas de la variante 1D son:
+\[
+ \mathcal M_h=rM+16Ns_h+2M\,\mathbf1_{h=0}.
+\]
+El primer término corresponde a una copia de $B$ por proceso; el segundo a las porciones locales de $A$ y $C$; el último a las matrices globales $A$ y $C$ del servidor. Su copia global de $B$ ya se cuenta entre las $r$ copias. Si las filas quedan equilibradas por nodo, $s_h\simeq N/H$ y
+\[
+ \mathcal M_0\simeq(r+2/H+2)M,\qquad
+ \mathcal M_{h>0}\simeq(r+2/H)M.
+\]
+
+\begin{table}[H]\caption{Reservas explícitas de matrices calculadas desde el código 1D, tanto global como jerárquico. La tabla considera el reparto exacto de filas, incluso si $N$ no es divisible por $P$.}\label{tab:memoria}
+\input{tablas/analisis_memoria}
+\end{table}
+
+Los valores son un modelo de buffers reservados, no medidas de RSS o de memoria pico física. Excluyen buffers internos de MPI, biblioteca, sistema y otros programas; algunas páginas pueden materializarse al primer acceso. Para $N=7168$, el nodo local reserva unos 10.719 GiB en matrices, y el servidor de la versión de cuatro nodos, unos 10.145 GiB. La disminución es pequeña porque ambos mantienen 24 copias completas de $B$ en ese equipo. Sumar $4\times32$ GB no describe el tamaño de problema que cabe en 1D.
+
+La difusión jerárquica conserva esas reservas. Reduce comunicaciones, pero no elimina las copias privadas. Usar una sola copia compartida de $B$ por nodo cambiaría el término $rM$ por $M$ y requeriría otra implementación, sincronización y verificación de visibilidad. Es una vía concreta para reducir memoria; su efecto temporal todavía no se ha medido.
+
+\subsection{Qué aporta y qué cuesta la malla 2D}
+
+Con 64 procesos, $q=8$ y $b=3072/8=384$. Cada proceso reserva cinco bloques $b\times b$: $A_{loc}$, $B_{loc}$, dos temporales y $C_{loc}$. En el servidor permanecen además las matrices completas $A,B,C$ y un buffer de empaquetado. Con dieciséis procesos por nodo:
+\[
+ \mathcal M_{0,2D}=(4+5/4)M=5.25M,\qquad
+ \mathcal M_{h>0,2D}=1.25M.
+\]
+Para $N=3072$, son aproximadamente 0.369 GiB en el servidor y 0.088 GiB por worker, frente a 1.301 GiB en el servidor 1D con 64 procesos. El ahorro de reservas es real en el código, aunque la campaña no midió RSS. Esta ventaja puede importar en problemas de mayor tamaño aun cuando el tiempo del caso medido sea peor.
+
+\figura{analisis_malla.pdf}{0.98}{Asignación deducida del orden por slots: cada color es un nodo físico y cada número es un rango MPI. Dos filas completas de la malla quedan en cada equipo.}
+
+Los comunicadores de fila quedan enteramente dentro de un nodo; cada comunicador de columna incluye dos rangos de cada uno de los cuatro nodos. Por tanto, las difusiones de $A$ por fila son locales y las de $B$ por columna atraviesan la red. Hay ocho pasos secuenciales; en cada uno se realizan dos colectivas bloqueantes antes del cálculo. La malla lógica $8\times8$ no equivale a 64 computadoras ni a una red física bidimensional.
+
+Se puede calcular una referencia ideal de carga útil entre equipos, sin cabeceras ni repeticiones de mensajes. Para 1D con jerarquía perfecta sobre cuatro nodos, distribuir $A$ mueve $3M/4$, difundir $B$ mueve $3M$ y reunir $C$ mueve $3M/4$: en total $4.5M=339.74$ MB. Para la malla 2D descrita, repartir inicialmente $A$ y $B$ mueve $1.5M$, difundir todos los bloques de $B$ a los otros tres nodos suma $3M$ y reunir $C$ añade $0.75M$: $5.25M=396.36$ MB.
+
+Estas cuentas suponen que cada bloque cruza una sola vez hacia cada nodo que lo necesita, con comunicación local eficiente. Son referencias de carga útil para esta colocación; no predicciones exactas de contadores. El TX observado de 678 MB para 2D supera esa referencia. La diferencia puede incluir decisiones de colectivas y tráfico auxiliar, pero no se atribuye una cantidad concreta a cada causa sin una traza. Incluso la referencia ideal explica por qué reducir la memoria por proceso no obligaba a reducir la red física en este caso: los cuatro equipos siguen necesitando todos los bloques de $B$, repartidos entre sus procesos.
+
+\subsection{Qué optimizar después de reducir Bcast}
+
+Tras aplicar la jerarquía, la multiplicación Ethernet aún tarda 3.217 s. El máximo mediano de cálculo es solo 0.161 s, mientras distribución y reunión siguen mostrando duraciones grandes. Hacer más rápido únicamente el bucle local difícilmente explicaría por sí solo el salto hasta 0.649 s del nodo local. No se calcula un límite de aceleración restando máximos de fases, porque esos máximos pueden corresponder a rangos distintos.
+
+Las oportunidades siguientes afectan el camino completo: reducir copias compartiendo $B$, evitar repetir comunicaciones si se reutiliza la misma matriz, investigar los costes de reparto y reunión o distribuir la entrada desde su origen. Cada cambio modifica el problema operativo. Si una aplicación necesita una única matriz final en el servidor, su reunión debe seguir incluida en la métrica de decisión. Si consume resultados distribuidos, esa nueva condición se debe declarar y medir de forma separada.

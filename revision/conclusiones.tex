@@ -1,30 +1,25 @@
-\section{Conclusiones y límites de lo que podemos defender}\label{sec:conclusiones}
+\section{Conclusiones}
 
-\subsection{Conclusiones}
+\subsection{Respuesta al problema de rendimiento}
 
-\begin{enumerate}
-\item \textbf{El tipo de problema determina si conviene distribuirlo.} El trapecio grande obtiene aceleraciones de 68.56 y 68.20 por Ethernet con 96 procesos en la primera y la segunda batería. En matrices, el mejor tiempo fue siempre un nodo con 24 procesos: en las dos baterías, en todos los tamaños hasta $N=6144$, y en la campaña hasta $N=7168$.
-\item \textbf{La comunicación explica la penalización de matrices.} Con 96 procesos y $N=3072$, el cálculo máximo ronda 0.10 s en ambas redes, mientras el total es 6.175 s por cable y 101.042 s por Wi-Fi. Las fases de distribución y reunión concentran los tiempos grandes.
-\item \textbf{Reducir las copias entre nodos es la optimización que funcionó.} La difusión jerárquica redujo a la mitad el tiempo y el tráfico con 96 procesos en las dos redes, con rangos separados en cinco repeticiones. La selección \texttt{knomial} de Open MPI produjo TX similar y una mediana ligeramente menor en la difusión aislada, sin cambiar el código.
-\item \textbf{No todas las ideas de optimización se confirmaron.} SUMMA 2D fue más lenta que 1D con $P=64$, y el reparto asimétrico P/E no mostró una mejora consistente en el trapecio.
-\item \textbf{La lentitud de madrugada está registrada, pero no se reproduce.} La corrida de 906.351 s usó 8 procesos, dos en cada uno de cuatro nodos, y pasó 889.744 s en el máximo de \texttt{Bcast}; su repetición tardó 322.513 s con el mismo cálculo. Otra serie, con 16 procesos, midió unos 1112 MB en 1D y 423 MB en 2D. No son cifras de una misma ejecución.
-\item \textbf{Optimizar caché y reducir tráfico son mejoras distintas.} Los bloques aceleran el cálculo local; la partición y la difusión cambian las comunicaciones. Añadir \texttt{vader} explicita los transportes, pero no prueba por sí solo la causa del cambio de volumen.
-\item \textbf{La comparación entre campañas depende del peso del cálculo.} En matrices con 96 procesos, las corridas únicas quedan a menos de un 2\,\% de las medianas posteriores; con 24 procesos difieren entre un 19 y un 37\,\% entre momentos y binarios.
-\end{enumerate}
+Los datos respaldan que el límite principal de las matrices distribuidas es el coste de mover y coordinar datos entre nodos en las configuraciones probadas. La evidencia más fuerte no es el cociente entre la corrida histórica de 906 s y una nueva: es la comparación controlada entre 1D global y jerárquica, con el mismo tamaño, número de procesos, kernel y binario. Con $N=3072$ y 96 procesos, la jerarquía redujo el tiempo interno aproximadamente un 49\,\% y el TX agregado algo más de un 52\,\% en ambas redes. La dirección del resultado se conserva en las cinco repeticiones.
 
-\subsection{Qué cambió respecto del informe anterior}
-Ahora sí se usa Ethernet; ya no queda como una propuesta futura. Se incorporó el trapecio, se llegó a 96 procesos y se incluyó un punto explícito con un nodo completo. La segunda batería amplió tamaños, registró TX+RX del servidor y contrastó sus 75 logs con CSV y JSON. La campaña de optimización añadió repeticiones, variantes de difusión, SUMMA 2D y tamaños mayores, con sellos SHA-256. Esta versión revisada añade la auditoría de la evidencia y el análisis de variabilidad.
+Aun con esa mejora, cuatro nodos no superaron a un nodo de 24 procesos. En las dos baterías, 24 fue el mejor punto entre $1,24,48,72,96$; en la campaña, 1D global con 24 fue más rápido que con 96 hasta $N=7168$. Esto no determina el número óptimo dentro del nodo: el antecedente de 16 procesos y las diferencias de compilación justifican un barrido local nuevo. Tampoco determina un tamaño de cruce no medido ni el comportamiento de la jerárquica con matrices mayores.
 
-\subsection{Qué haría falta para confirmar las causas pendientes}
-\begin{itemize}
-\item Recompilar la campaña con \texttt{-O3 -march=native -funroll-loops} y repetir las configuraciones con 24 procesos, para separar el efecto del binario del momento de ejecución.
-\item Medir la multiplicación completa con $P=96$ y la selección \texttt{knomial}, para confirmar que dos opciones MCA sustituyen a la versión jerárquica escrita a mano.
-\item Registrar el componente y el algoritmo colectivo elegidos en cada corrida, junto con los bytes por nodo.
-\item Repetir las baterías con al menos tres corridas por configuración, alternando redes y en orden aleatorio.
-\item Añadir contadores TCP y de radio para estudiar reintentos, y contadores de memoria para contrastar el modelo de caché.
-\end{itemize}
-Estas verificaciones quedan \textbf{propuestas}; no se presentan como experimentos ya realizados.
+El trapecio grande representa un uso más favorable del clúster. Las baterías alcanzaron aceleraciones internas cercanas a 68 con 96 procesos por Ethernet, gracias a mucho cálculo independiente y pocos datos finales. El caso pequeño muestra el límite contrario: la coordinación y el lanzamiento pueden dominar. Un buen tiempo interno no basta para elegir una configuración si el usuario ejecuta operaciones aisladas y debe esperar todo el procedimiento.
+
+\subsection{Qué optimizaciones quedan respaldadas y cuáles abiertas}
+
+La difusión jerárquica es una mejora comprobada para la multiplicación distribuida estudiada. La selección knomial es una alternativa prometedora en el microbenchmark: obtuvo TX agregado similar y tiempos cerca de un 3\,\% menores que la jerárquica, aunque con la transmisión concentrada en el servidor. La prueba decisiva pendiente es la multiplicación completa con 96 procesos y trazas de selección de la colectiva.
+
+SUMMA 2D disminuye las reservas explícitas por proceso, pero en la configuración $P=64$, malla $8\times8$, aumentó tiempo y TX. La colocación de dos filas por nodo, la entrada centralizada, el empaquetamiento y las colectivas bloqueantes delimitan ese resultado. Memoria, volumen de interfaz y tiempo son objetivos relacionados, pero no intercambiables. El reparto ponderado del trapecio tampoco mostró una ganancia consistente; su menor cociente de desbalance en algunas corridas no implicó un menor tiempo total.
+
+\subsection{Alcance de la explicación y de la reproducibilidad}
+
+La corrida de 906.351 s queda identificada sin ambigüedad: ocho procesos, dos en cada uno de cuatro nodos, matriz de $3072\times3072$, Wi-Fi y ejecutable histórico. Su repetición de 322.513 s impide tratar ese único valor extremo como una base estable para cuantificar toda la mejora posterior. La documentación de Open MPI y los comandos conservados tampoco permiten afirmar que antes faltara memoria compartida local o que un único parámetro explique el cambio completo.
+
+El informe conserva 243 registros principales, las series históricas y la cadena desde cada tabla hasta CSV y log. Se verificaron coherencia numérica impresa y manifiestos, con las limitaciones declaradas. La nueva edición aporta análisis y modelos derivados de esa evidencia; no convierte hipótesis en mediciones. El siguiente paso con mayor utilidad es comprobar la selección de Bcast en la multiplicación completa y aislar el efecto de compilación antes de ampliar tamaños o rediseñar kernels.
 
 \begin{idea}
-La conclusión más defendible es que el clúster acelera los trabajos con suficiente cálculo independiente, mientras las comunicaciones pueden anular esa ventaja. Reducir las copias de datos entre nodos fue la mejora más grande y reproducible para matrices. Las cifras del informe permiten mostrarlo sin ocultar los resultados desfavorables ni convertir modelos de tráfico en mediciones.
+\textbf{Recomendación basada en lo medido.} Para estas multiplicaciones aisladas y los tamaños ensayados, comenzar por la configuración local y optimizarla con un barrido controlado. Cuando sea necesario distribuir el cálculo, usar la difusión jerárquica como referencia validada y medir el coste completo. Para cargas independientes como el trapecio grande, el clúster ya ofrece una aceleración sustancial, cuya utilidad práctica depende de cuánto lanzamiento y coordinación se pueda amortizar.
 \end{idea}

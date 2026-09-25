@@ -1,0 +1,448 @@
+{
+  "alcance": {
+    "matriz": 64,
+    "bcast": 30,
+    "trapecio": 24
+  },
+  "efectos": [
+    {
+      "prueba": "matriz",
+      "red": "Ethernet",
+      "p": 96,
+      "A": "1d",
+      "B": "1d-hier",
+      "repeticiones": 5,
+      "mediana_a": 6.260268,
+      "mediana_b": 3.216833,
+      "razon_medianas": 1.9460966733430054,
+      "reduccion_tiempo_pct": 48.61509123890543,
+      "ahorro_s": 3.043435,
+      "reduccion_tx_pct": 52.49736835940091,
+      "razones_bloque": [
+        1.9377086096791474,
+        1.9865661813219437,
+        1.9457800741811428,
+        2.0274996202649302,
+        1.905682212178906
+      ],
+      "razon_bloque_mediana": 1.9457800741811428
+    },
+    {
+      "prueba": "bcast",
+      "red": "Ethernet",
+      "p": 16,
+      "A": "world",
+      "B": "hier",
+      "repeticiones": 3,
+      "mediana_a": 4.293832,
+      "mediana_b": 2.033956,
+      "razon_medianas": 2.1110741825290225,
+      "reduccion_tiempo_pct": 52.630750341419976,
+      "ahorro_s": 2.259876,
+      "reduccion_tx_pct": 76.90870911576211,
+      "razones_bloque": [
+        2.138988257366433,
+        2.1098231983498117,
+        1.971723500724483
+      ],
+      "razon_bloque_mediana": 2.1098231983498117
+    },
+    {
+      "prueba": "bcast",
+      "red": "Ethernet",
+      "p": 16,
+      "A": "hier",
+      "B": "tuned-knomial",
+      "repeticiones": 3,
+      "mediana_a": 2.033956,
+      "mediana_b": 1.976867,
+      "razon_medianas": 1.0288785234413846,
+      "reduccion_tiempo_pct": 2.8067962138807356,
+      "ahorro_s": 0.057088999999999945,
+      "reduccion_tx_pct": -0.009059353866747166,
+      "razones_bloque": [
+        1.0258024657112812,
+        1.0294885796565982,
+        1.0285305852006896
+      ],
+      "razon_bloque_mediana": 1.0285305852006896
+    },
+    {
+      "prueba": "matriz",
+      "red": "Ethernet",
+      "p": 64,
+      "A": "2d",
+      "B": "1d",
+      "repeticiones": 3,
+      "mediana_a": 5.49151,
+      "mediana_b": 3.147406,
+      "razon_medianas": 1.7447733149139322,
+      "reduccion_tiempo_pct": 42.68596433403563,
+      "ahorro_s": 2.3441039999999997,
+      "reduccion_tx_pct": 47.20416282084614,
+      "razones_bloque": [
+        1.737802091932416,
+        1.7444862074179681,
+        1.7621631908943427
+      ],
+      "razon_bloque_mediana": 1.7444862074179681
+    },
+    {
+      "prueba": "matriz",
+      "red": "Wi-Fi",
+      "p": 96,
+      "A": "1d",
+      "B": "1d-hier",
+      "repeticiones": 5,
+      "mediana_a": 101.082387,
+      "mediana_b": 51.47854,
+      "razon_medianas": 1.9635830192542367,
+      "reduccion_tiempo_pct": 49.072690576648135,
+      "ahorro_s": 49.603846999999995,
+      "reduccion_tx_pct": 52.97758081799404,
+      "razones_bloque": [
+        1.9531570127606228,
+        2.010341878072983,
+        1.9558178750955064,
+        1.9635830192542367,
+        1.954149592474703
+      ],
+      "razon_bloque_mediana": 1.9558178750955064
+    },
+    {
+      "prueba": "bcast",
+      "red": "Wi-Fi",
+      "p": 16,
+      "A": "world",
+      "B": "hier",
+      "repeticiones": 3,
+      "mediana_a": 133.042611,
+      "mediana_b": 30.463595,
+      "razon_medianas": 4.367265616549852,
+      "reduccion_tiempo_pct": 77.10237737291551,
+      "ahorro_s": 102.579016,
+      "reduccion_tx_pct": 77.34727484556441,
+      "razones_bloque": [
+        4.310208496403658,
+        4.1653340614384735,
+        4.485678763965121
+      ],
+      "razon_bloque_mediana": 4.310208496403658
+    },
+    {
+      "prueba": "bcast",
+      "red": "Wi-Fi",
+      "p": 16,
+      "A": "hier",
+      "B": "tuned-knomial",
+      "repeticiones": 3,
+      "mediana_a": 30.463595,
+      "mediana_b": 29.575315,
+      "razon_medianas": 1.0300345068175945,
+      "reduccion_tiempo_pct": 2.9158738487693348,
+      "ahorro_s": 0.8882800000000017,
+      "reduccion_tx_pct": -0.25755154101088085,
+      "razones_bloque": [
+        1.0300345068175945,
+        1.0772330320270371,
+        1.0148844360163158
+      ],
+      "razon_bloque_mediana": 1.0300345068175945
+    },
+    {
+      "prueba": "matriz",
+      "red": "Wi-Fi",
+      "p": 64,
+      "A": "2d",
+      "B": "1d",
+      "repeticiones": 3,
+      "mediana_a": 87.314378,
+      "mediana_b": 51.728071,
+      "razon_medianas": 1.6879496241025498,
+      "reduccion_tiempo_pct": 40.7565258038029,
+      "ahorro_s": 35.586307000000005,
+      "reduccion_tx_pct": 49.385276832361946,
+      "razones_bloque": [
+        1.6969243450040887,
+        1.7622134366981728,
+        1.6752070827987575
+      ],
+      "razon_bloque_mediana": 1.6969243450040887
+    }
+  ],
+  "trafico_nodal": [
+    {
+      "red": "Ethernet",
+      "prueba": "matriz",
+      "p": 96,
+      "variante": "1d",
+      "tx_nodos_mb": [
+        455.709605,
+        20.808337,
+        257.974358,
+        21.082984
+      ],
+      "tx_total_mediana_mb": 755.5173
+    },
+    {
+      "red": "Ethernet",
+      "prueba": "matriz",
+      "p": 96,
+      "variante": "1d-hier",
+      "tx_nodos_mb": [
+        139.116557,
+        99.59034,
+        99.610466,
+        20.295093
+      ],
+      "tx_total_mediana_mb": 358.8906
+    },
+    {
+      "red": "Ethernet",
+      "prueba": "bcast",
+      "p": 16,
+      "variante": "world",
+      "tx_nodos_mb": [
+        297.822812,
+        238.299669,
+        258.13251,
+        238.302641
+      ],
+      "tx_total_mediana_mb": 1032.5434
+    },
+    {
+      "red": "Ethernet",
+      "prueba": "bcast",
+      "p": 16,
+      "variante": "hier",
+      "tx_nodos_mb": [
+        79.253248,
+        79.420668,
+        79.413635,
+        0.261575
+      ],
+      "tx_total_mediana_mb": 238.4276
+    },
+    {
+      "red": "Ethernet",
+      "prueba": "bcast",
+      "p": 16,
+      "variante": "tuned-knomial",
+      "tx_nodos_mb": [
+        237.528673,
+        0.308609,
+        0.30606,
+        0.30434
+      ],
+      "tx_total_mediana_mb": 238.4492
+    },
+    {
+      "red": "Wi-Fi",
+      "prueba": "matriz",
+      "p": 96,
+      "variante": "1d",
+      "tx_nodos_mb": [
+        439.42512,
+        20.928923,
+        248.315595,
+        20.790887
+      ],
+      "tx_total_mediana_mb": 729.3085
+    },
+    {
+      "red": "Wi-Fi",
+      "prueba": "matriz",
+      "p": 96,
+      "variante": "1d-hier",
+      "tx_nodos_mb": [
+        133.089726,
+        95.168455,
+        95.17409,
+        19.538482
+      ],
+      "tx_total_mediana_mb": 342.9385
+    },
+    {
+      "red": "Wi-Fi",
+      "prueba": "bcast",
+      "p": 16,
+      "variante": "world",
+      "tx_nodos_mb": [
+        289.707088,
+        231.568933,
+        252.597758,
+        231.8919
+      ],
+      "tx_total_mediana_mb": 1006.4714
+    },
+    {
+      "red": "Wi-Fi",
+      "prueba": "bcast",
+      "p": 16,
+      "variante": "hier",
+      "tx_nodos_mb": [
+        75.71443,
+        75.989277,
+        75.96341,
+        0.326407
+      ],
+      "tx_total_mediana_mb": 227.9932
+    },
+    {
+      "red": "Wi-Fi",
+      "prueba": "bcast",
+      "p": 16,
+      "variante": "tuned-knomial",
+      "tx_nodos_mb": [
+        227.317088,
+        0.437021,
+        0.426033,
+        0.417836
+      ],
+      "tx_total_mediana_mb": 228.5804
+    }
+  ],
+  "tiempo_pared": [
+    {
+      "kind": "matriz",
+      "red": "Ethernet",
+      "n": 3072,
+      "p": 24,
+      "variante": "1d",
+      "interno": 0.648645,
+      "pared": 1.8362,
+      "diferencia_mediana": 1.1875550000000001
+    },
+    {
+      "kind": "matriz",
+      "red": "Ethernet",
+      "n": 3072,
+      "p": 96,
+      "variante": "1d",
+      "interno": 6.260268,
+      "pared": 9.2746,
+      "diferencia_mediana": 3.0213319999999992
+    },
+    {
+      "kind": "matriz",
+      "red": "Ethernet",
+      "n": 3072,
+      "p": 96,
+      "variante": "1d-hier",
+      "interno": 3.216833,
+      "pared": 6.4336,
+      "diferencia_mediana": 3.14562
+    },
+    {
+      "kind": "matriz",
+      "red": "Wi-Fi",
+      "n": 3072,
+      "p": 96,
+      "variante": "1d",
+      "interno": 101.082387,
+      "pared": 105.2986,
+      "diferencia_mediana": 4.520460999999997
+    },
+    {
+      "kind": "matriz",
+      "red": "Wi-Fi",
+      "n": 3072,
+      "p": 96,
+      "variante": "1d-hier",
+      "interno": 51.47854,
+      "pared": 55.9353,
+      "diferencia_mediana": 4.801730999999997
+    },
+    {
+      "kind": "trapecio",
+      "red": "Ethernet",
+      "n": 100000000,
+      "p": 24,
+      "variante": "simetrico",
+      "interno": 0.007164,
+      "pared": 0.9981,
+      "diferencia_mediana": 0.990476
+    },
+    {
+      "kind": "trapecio",
+      "red": "Ethernet",
+      "n": 100000000,
+      "p": 96,
+      "variante": "simetrico",
+      "interno": 0.00203,
+      "pared": 2.9178,
+      "diferencia_mediana": 2.916455
+    },
+    {
+      "kind": "trapecio",
+      "red": "Ethernet",
+      "n": 100000000000,
+      "p": 24,
+      "variante": "simetrico",
+      "interno": 5.183325,
+      "pared": 6.1149,
+      "diferencia_mediana": 0.9517379999999998
+    },
+    {
+      "kind": "trapecio",
+      "red": "Ethernet",
+      "n": 100000000000,
+      "p": 96,
+      "variante": "simetrico",
+      "interno": 1.011597,
+      "pared": 4.3007,
+      "diferencia_mediana": 3.2971690000000002
+    }
+  ],
+  "memoria_modelo": [
+    {
+      "n": 3072,
+      "p": 24,
+      "nodos": 1,
+      "matriz_mb": 75.497472,
+      "servidor_gib": 1.96875,
+      "worker_max_gib": 0.0
+    },
+    {
+      "n": 3072,
+      "p": 96,
+      "nodos": 4,
+      "matriz_mb": 75.497472,
+      "servidor_gib": 1.86328125,
+      "worker_max_gib": 1.72265625
+    },
+    {
+      "n": 6144,
+      "p": 24,
+      "nodos": 1,
+      "matriz_mb": 301.989888,
+      "servidor_gib": 7.875,
+      "worker_max_gib": 0.0
+    },
+    {
+      "n": 6144,
+      "p": 96,
+      "nodos": 4,
+      "matriz_mb": 301.989888,
+      "servidor_gib": 7.453125,
+      "worker_max_gib": 6.890625
+    },
+    {
+      "n": 7168,
+      "p": 24,
+      "nodos": 1,
+      "matriz_mb": 411.041792,
+      "servidor_gib": 10.71875,
+      "worker_max_gib": 0.0
+    },
+    {
+      "n": 7168,
+      "p": 96,
+      "nodos": 4,
+      "matriz_mb": 411.041792,
+      "servidor_gib": 10.1453857421875,
+      "worker_max_gib": 9.3797607421875
+    }
+  ],
+  "observaciones": 118
+}

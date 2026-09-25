@@ -1,0 +1,51 @@
+\section{Experimentos siguientes, ordenados por utilidad}\label{sec:propuestas}
+
+Las propuestas de esta sección no se ejecutaron para regenerar el informe. Se ordenan por la incertidumbre que resuelven y por su relación con los costes observados. Se propone conservar un identificador único, comando expandido, versión de código y binario, reparto por nodo, afinidad, tiempos por rango, contadores y resultado numérico para cada nueva corrida. Los resultados fallidos también deben quedar registrados.
+
+\subsection{Prioridad 1: comprobar knomial en la multiplicación completa}
+
+\textbf{Pregunta.} ¿La selección de la colectiva reproduce la mejora de \texttt{1d-hier} sin modificar la estructura del programa?
+
+\textbf{Diseño.} Mantener $N=3072$, kernel tiled 64, $P=96$, distribución $24+24+24+24$, el mismo binario y las dos redes. Comparar tres tratamientos: 1D global por defecto, 1D global con las opciones knomial y 1D jerárquica. Ejecutar al menos diez bloques con orden aleatorio y registrar la selección del componente colectivo. Es un plan de $3\times2\times10=60$ ejecuciones nuevas. La etiqueta \texttt{tuned-knomial} identifica opciones solicitadas; la traza permitirá confirmar la selección efectiva.
+
+\textbf{Métricas.} Tiempo total interno, duración pura del comando, coste del procedimiento, TX/RX por nodo, dispersión y huellas. Como umbral operativo propuesto, considerar útil una reducción de al menos 5\,\% del tiempo completo frente a la jerárquica, repetida en ambos sentidos de orden sin fallos numéricos. El 5\,\% expresa una preferencia práctica para el próximo estudio; no es un umbral estadístico obtenido de estos datos. Una igualdad práctica también sería informativa si evita mantener código adicional.
+
+\subsection{Prioridad 2: separar compilación y kernel local}
+
+\textbf{Pregunta.} ¿Cuánto de la diferencia entre campañas proviene del binario?
+
+\textbf{Diseño.} A partir del mismo código, conservar binarios distintos con \texttt{-O3}, \texttt{-O3 -march=native} y \texttt{-O3 -march=native -funroll-loops}. Registrar versión del compilador, comando y SHA-256 de cada binario; alternarlos en el mismo bloque. Empezar con $N=3072,6144$, 24 procesos locales y cinco repeticiones: $3\times2\times5=30$ corridas. Mantener afinidad, tamaño de bloque, datos y estado de energía documentados. No sobrescribir los binarios que produjeron la evidencia anterior.
+
+\textbf{Métricas.} Tiempo de cálculo por rango, tiempo total, informe de vectorización y, si se estudian instrucciones concretas, desensamblado del binario. GCC documenta que \texttt{-march=native} habilita extensiones de la máquina de compilación\cite{gcc-x86}; los flags por sí solos no demuestran qué instrucciones terminaron ejecutándose. Un control con BLAS optimizada puede aportar una referencia de cálculo, fijando explícitamente sus hilos para no multiplicarlos por el número de procesos MPI. Ese control necesita su propio tratamiento y comprobación numérica.
+
+\subsection{Prioridad 3: encontrar el paralelismo local adecuado}
+
+\textbf{Pregunta.} ¿Cuántos procesos convienen en un nodo híbrido P/E?
+
+\textbf{Diseño.} Con un binario ya fijado, barrer $P=1,2,4,8,12,16,20,24$ y $N=3072,6144$, cinco veces por configuración: 80 corridas. Registrar rango, identificador de CPU y tipo de núcleo, y definir explícitamente cómo se selecciona el subconjunto de núcleos. Un barrido de cantidad de procesos sin controlar qué núcleos se usan mezcla dos cambios.
+
+\textbf{Métricas.} Tiempo total, cálculo máximo y promedio, bytes de memoria si se dispone de contadores fiables, frecuencia y dispersión. El antecedente local de 16 procesos justifica este barrido. Se busca el mínimo observado con un mapa reproducible, no demostrar de antemano que ocho P, dieciséis procesos o todos los núcleos sean mejores.
+
+\subsection{Prioridad 4: una copia de B por nodo}
+
+\textbf{Pregunta.} ¿Compartir el almacenamiento reduce memoria y copias sin introducir espera mayor?
+
+\textbf{Diseño.} Añadir una variante con un buffer de $B$ compartido dentro del nodo, difusión entre líderes y sincronización conforme al modelo de memoria de MPI. Compararla con la jerárquica actual, que conserva buffers privados. Validar primero matrices pequeñas elemento por elemento; después usar los mismos tamaños y mapas de la campaña. La comparación debe mantener el mismo kernel y reportar por separado inicialización, creación del recurso compartido y región repetida.
+
+\textbf{Métricas.} RSS o memoria pico por proceso y nodo, tiempo total, copias, validación y coste de sincronización. La reducción de reservas prevista en el modelo es una hipótesis comprobable. No se promete una aceleración proporcional a la reducción de memoria: NUMA, cachés y concurrencia de lectura pueden cambiar el resultado.
+
+\subsection{Prioridad 5: 2D con trazas y una interfaz de entrada explícita}
+
+Antes de ampliar la malla, medir por separado empaquetar, repartir, cada paso de difusión, calcular, reunir y desempaquetar. Registrar qué rangos participan en cada colectiva y bytes por nodo. Comparar la implementación actual con otra que reciba matrices ya distribuidas solo si esa condición representa una aplicación real; mostrar ambos tiempos, con y sin preparación centralizada.
+
+El solapamiento mediante colectivas no bloqueantes exige doble buffer, dependencias correctas y verificar que exista progreso durante el cálculo. Cambiar únicamente a una llamada no bloqueante no garantiza solapamiento efectivo. La primera pregunta es cuánto tiempo puede ocultarse según una traza por rango. Si el beneficio esperado es menor que los costes de preparación, conviene resolver estos primero.
+
+\subsection{Prioridad 6: calibración P/E y estado de la red}
+
+Para el trapecio, medir capacidad por núcleo con la misma función y el mismo binario; verificar el mapa físico y calcular pesos a partir de duraciones conservadas. Comparar reparto simétrico, peso fijo 1.2658 y peso calibrado. Conservar tanto el máximo absoluto como el cociente de desbalance, porque este último puede mejorar sin reducir el tiempo total.
+
+Para investigar Wi-Fi, añadir mediciones de caudal punto a punto y simultáneo, señal y contadores de reintentos o retransmisiones disponibles; registrar carga de fondo. Esas pruebas responden una pregunta distinta de la eficiencia del kernel. Los pings existentes indican conectividad y latencia de mensajes pequeños; no miden el ancho de banda de una colectiva de 75.5 MB ni prueban saturación de radio. Ejecutar sesiones en distintos horarios permitiría evaluar si las conclusiones de tráfico conservan su tamaño de efecto.
+
+\subsection{Criterio de cierre de una nueva campaña}
+
+Definir antes de ejecutar cuál comparación decide el resultado, mantener las observaciones individuales y establecer un número de bloques. Si aparecen valores extremos, registrar el estado del sistema y conservarlos; repetir por un criterio declarado, no hasta conseguir el valor deseado. Publicar mejoras y regresiones, y separar las mediciones exploratorias usadas para elegir parámetros de las usadas para confirmar el resultado. Así, el siguiente informe podrá explicar una causa con mayor precisión en lugar de acumular cifras de configuraciones incompatibles.

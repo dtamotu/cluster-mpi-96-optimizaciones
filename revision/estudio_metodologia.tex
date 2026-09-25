@@ -1,0 +1,152 @@
+\section{Preguntas, evidencia y diseño del estudio}
+
+\subsection{Objetivo y preguntas de investigación}
+
+El objetivo es explicar qué limita el tiempo de los programas disponibles y determinar qué cambios demostraron una mejora en este clúster. Se analizan cuatro preguntas: ¿cuándo compensa añadir nodos?, ¿qué parte de la comunicación se puede reducir?, ¿cómo influye la distribución de matrices en memoria? y ¿qué conclusiones resisten al observar las repeticiones individuales? El criterio principal es el tiempo total del algoritmo completo. El tiempo de una sola fase ayuda al diagnóstico, pero no sustituye ese criterio.
+
+Se utiliza la separación entre partición, comunicación, agrupación y asignación de la metodología de Foster\cite{foster}. En matrices, partir filas resuelve la distribución del trabajo; replicar $B$ determina buena parte del movimiento de datos; las teselas organizan la reutilización local; y el orden de rangos determina qué mensajes cruzan una interfaz física. Son decisiones diferentes. Una opción de transporte MPI no sustituye al diseño de esos cuatro niveles.
+
+\begin{table}[H]\centering\small
+\caption{Preguntas contrastables y evidencia disponible.}
+\begin{tabularx}{\linewidth}{p{3.3cm}X p{3.4cm}}
+\toprule Pregunta & Comparación con controles compartidos & Alcance \\
+\midrule
+¿Ayuda la jerarquía? & 1D global frente a 1D jerárquica; mismo $N$, $P$, kernel, red y binario. & Cinco repeticiones, $N=3072$, $P=24,96$. \\
+¿Ayuda seleccionar Bcast? & Global, jerárquica y dos solicitudes \texttt{tuned}; misma carga de difusión. & Tres repeticiones, $P=16$, cuatro nodos. \\
+¿Ayuda la partición 2D? & 1D frente a 2D con el mismo número de procesos. & Tres repeticiones, $P=64$, malla $8\times8$. \\
+¿Compensa un problema mayor? & 1D global con 24 frente a 96 procesos. & $N=3072,6144,7168$ por Ethernet. \\
+¿Ayuda ponderar el trapecio? & Modos simétrico y ponderado del mismo programa corregido. & Tres repeticiones por tamaño y $P$. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Inventario: qué son los 243 registros}
+
+\begin{table}[H]\centering\small
+\caption{Corpus principal. Una fila representa una ejecución, no una media.}
+\begin{tabularx}{\linewidth}{p{3.2cm}rX}
+\toprule Serie & Filas & Diseño \\
+\midrule
+Primera batería & 50 & Dos redes, cinco valores de $P$, dos tamaños del trapecio y tres de matrices. Una ejecución por configuración. \\
+Batería ampliada & 75 & 40 ejecuciones Ethernet y 35 Wi-Fi. Añade matrices de 512, 4096 y 6144; el último tamaño solo por cable. Una ejecución por configuración. \\
+Matrices principales & 40 & $2$ redes $\times2$ valores de $P$ $\times2$ variantes 1D $\times5$ repeticiones. \\
+Difusión aislada & 30 & $2\times4\times3=24$ distribuidas, más $2\times3=6$ locales por Ethernet. \\
+Comparación 1D/2D & 12 & $2$ redes $\times2$ variantes $\times3$ repeticiones, $P=64$. \\
+Matrices mayores & 12 & $2$ tamaños $\times2$ valores de $P$ $\times3$ repeticiones, Ethernet. \\
+Trapecio ponderado & 24 & $2$ tamaños $\times2$ valores de $P$ $\times2$ repartos $\times3$ repeticiones. \\
+\midrule Total & 243 & $50+75+(40+30+12+12+24)$. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Las 118 últimas ejecuciones pertenecen a la campaña de optimización. Las carpetas \archivo{20260925_074354} y \archivo{20260925_extra} contienen 82 y 36 filas respectivamente. Las pruebas piloto y de humo no entran en las estadísticas. Los JSON históricos de caché, madrugada y mediodía se usan como antecedentes adicionales; no se suman a los 243 registros ni se mezclan con ellos para obtener medianas.
+
+\subsection{Repeticiones, orden y estadística descriptiva}
+
+El lanzador agrupa las configuraciones por número de repetición y cambia su orden con una semilla reproducible: \texttt{20260925+rep} en la campaña principal y \texttt{20260926+rep} en la ampliación. Esto evita ejecutar siempre una variante primero. No elimina variaciones de señal, temperatura, frecuencia o carga ajena. Las dos baterías anteriores no ofrecen repetición dentro de cada configuración, por lo que sus puntos no tienen barras de incertidumbre estimables.
+
+Para cada grupo se reportan mediana, mínimo, máximo y número de observaciones. Se conservan los valores extremos. El cociente principal es $R=\widetilde T_A/\widetilde T_B$; la reducción porcentual de B respecto de A es $100(1-1/R)$. Un factor 1.95 equivale aproximadamente a reducir el tiempo un 49\,\%, no un 95\,\%. El ahorro en segundos se calcula como diferencia de medianas.
+
+Como comprobación descriptiva adicional se calcula $R_j=T_{A,j}/T_{B,j}$ para los casos del mismo bloque de repetición. No se supone que estas ejecuciones fueran simultáneas o inmediatamente consecutivas. La mediana de $R_j$ y el cociente de medianas son estadísticos diferentes; se presentan con nombres distintos. Con tres o cinco observaciones no se declaran pruebas de significación ni intervalos de confianza. Que dos rangos se separen respalda la consistencia observada; no demuestra estabilidad en cualquier horario o red.
+
+\section{Plataforma y colocación de procesos}\label{sec:plataforma}
+
+\begin{table}[H]\centering\small
+\caption{Nodos participantes. El servidor también ejecuta trabajo numérico.}
+\begin{tabular}{llll}
+\toprule Nodo & Usuario & Ethernet & Wi-Fi \\
+\midrule
+servidor & alumno16 & 10.7.50.202 & 10.7.134.117 \\
+workers1 & alumno22 & 10.7.50.203 & 10.7.134.58 \\
+workers2 & alumno21 & 10.7.50.201 & 10.7.134.59 \\
+workers4 & alumno6 & 10.7.50.204 & 10.7.134.51 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El inventario del proyecto describe un Intel Core Ultra 9 285 por equipo, con ocho núcleos P y dieciséis E, 24 núcleos físicos sin Hyper-Threading, 36 MB de caché L3 y 32 GB de RAM DDR5 en un módulo nominal de 5600 MT/s. Los cuatro nodos aportan 96 núcleos, pero su memoria se encuentra en espacios de direcciones distintos. El software documentado es Ubuntu 24.04 y Open MPI 4.1.6. \texttt{workers3} quedó excluido por incompatibilidad de MPI/PMIx.
+
+Ethernet usa la interfaz \archivo{enp128s31f6}, un enlace Gigabit y la subred \archivo{10.7.50.0/24}; Wi-Fi usa \archivo{wlp129s0f0} y \archivo{10.7.134.0/23}. Ambas redes son compartidas con otros usuarios. El inventario no demuestra frecuencias, ocupación de canal o temperatura constantes. Tampoco se midió el ancho de banda sostenido de RAM en estas corridas. La velocidad nominal de un componente no se trata como una medida del ancho de banda obtenido por el programa.
+
+\begin{table}[H]\centering\small
+\caption{Distribución explícita de los procesos. Los ceros indican nodos no usados.}\label{tab:reparto}
+\begin{tabularx}{\linewidth}{Xrrrrr}
+\toprule Caso & $P$ & Servidor & W1 & W2 & W4 \\
+\midrule
+Antecedente de 906.351 s & 8 & 2 & 2 & 2 & 2 \\
+Difusión aislada local & 16 & 16 & 0 & 0 & 0 \\
+Difusión aislada distribuida & 16 & 4 & 4 & 4 & 4 \\
+Referencia de las baterías & 1 & 1 & 0 & 0 & 0 \\
+Un nodo completo & 24 & 24 & 0 & 0 & 0 \\
+Dos nodos en baterías & 48 & 24 & 24 & 0 & 0 \\
+Comparación 1D/2D & 64 & 16 & 16 & 16 & 16 \\
+Tres nodos en baterías & 72 & 24 & 24 & 24 & 0 \\
+Cuatro nodos completos & 96 & 24 & 24 & 24 & 24 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La campaña fija \texttt{--map-by slot --rank-by slot --bind-to core}. Con 96 procesos, los rangos 0--23 pertenecen al servidor, 24--47 a workers1, 48--71 a workers2 y 72--95 a workers4. Se distinguen procesos MPI, hilos y unidades SIMD: los kernels del estudio no usan OpenMP; cada proceso calcula con un flujo de ejecución, mientras el compilador puede transformar sus bucles en instrucciones vectoriales. Una corrida con 96 procesos no mide un programa de un solo proceso con 96 hilos.
+
+\subsection{Qué especifica el comando de MPI}
+
+Los transportes se solicitan con \texttt{--mca btl self,vader,tcp}. \texttt{self} cubre mensajes al propio proceso, \texttt{vader} permite comunicación local por memoria compartida y \texttt{tcp} permite la comunicación IP entre equipos. Las opciones de interfaz limitan las redes que se deben usar. La FAQ de Open MPI 4.x indica que el transporte compartido local puede seleccionarse por defecto\cite{ompi-tcp}; por tanto, la ausencia de la palabra \texttt{vader} en un comando antiguo no demuestra que sus mensajes locales atravesaran TCP.
+
+Usar \texttt{vader} tampoco convierte automáticamente una difusión sobre todos los rangos en una difusión explícita entre líderes. Transporte, algoritmo colectivo y colocación son capas distintas. Para afirmar qué algoritmo eligió la biblioteca en una corrida histórica haría falta registrar esa selección. En este estudio se conocen el código invocado y las opciones solicitadas; la coincidencia de tiempo o tráfico no sustituye una traza interna.
+
+\section{Algoritmos y límites del cronometraje}\label{sec:medicion}
+
+\subsection{Multiplicación por franjas y difusión jerárquica}
+
+Se calcula $C=AB$ con elementos \texttt{double}. La inicialización determinista es $A_i=1+0.1(i\bmod7)$ y $B_i=2-0.1(i\bmod5)$ sobre el índice lineal. El rango 0 reserva las tres matrices completas. En 1D, cada rango recibe $\lfloor N/P\rfloor$ filas de $A$ y una fila adicional si su rango es menor que $N\bmod P$; reserva las filas correspondientes de $C$ y una copia completa de $B$. Para $N=3072$, $P=96$, son 32 filas por proceso.
+
+La secuencia global es \texttt{Scatterv(A)}, \texttt{Bcast(B)}, cálculo local y \texttt{Gatherv(C)}. En \texttt{1d-hier} se mantienen exactamente la partición, el kernel y la reunión. Solo cambia la difusión: primero participan los líderes de los nodos y después todos los procesos de cada nodo. El comunicador local se obtiene con \texttt{MPI\_Comm\_split\_type} y \texttt{MPI\_COMM\_TYPE\_SHARED}, que agrupa procesos capaces de compartir memoria\cite{ompi-shared}. Se selecciona el rango local 0 como líder. \textbf{Los buffers siguen siendo privados}; el programa no llama a \texttt{MPI\_Win\_allocate\_shared}.
+
+El kernel \texttt{tiled} recorre teselas de lado 64 para favorecer la reutilización. No cambia la descomposición entre procesos. La alternativa \texttt{ikj} y la versión por bloques tienen complejidad aritmética $O(N^3)$; sus accesos efectivos a memoria y su rendimiento pueden ser muy distintos. La campaña usa \texttt{tiled 64} en todas sus multiplicaciones.
+
+\subsection{SUMMA 2D: qué implementación se evaluó}
+
+Con $P=q^2$, cada rango pertenece a una fila y una columna de una malla. Su bloque tiene lado $b=N/q$. En cada paso $k$, se difunde $A_{ik}$ por la fila y $B_{kj}$ por la columna, y se acumula $C_{ij}\mathrel{+}=A_{ik}B_{kj}$. Esta organización sigue el esquema SUMMA\cite{summa}. La implementación evaluada exige $N\bmod q=0$, usa colectivas bloqueantes y realiza las dos difusiones antes del cálculo: no implementa solapamiento entre comunicación y cálculo.
+
+La entrada se encuentra centralizada. El rango 0 empaqueta todos los bloques de $A$ y de $B$, los distribuye, y al final reúne y desempaqueta $C$. Ese trabajo pertenece al tiempo medido. Por eso no se compara con un algoritmo teórico que empieza con matrices ya distribuidas y termina sin recogerlas.
+
+\subsection{Trapecio y reparto ponderado}
+
+Se aproxima $\pi=\int_0^1 4/(1+x^2)\,dx$ mediante
+\[
+ Q_n=h\left[\tfrac12 f(0)+\sum_{i=1}^{n-1}f(ih)+\tfrac12 f(1)\right],\qquad h=1/n.
+\]
+Cada proceso acumula un intervalo de índices y una reducción suma un \texttt{double} por rango. El volumen útil es pequeño frente al cálculo cuando $n=10^{11}$. Las métricas se resumen con reducciones adicionales después del intervalo medido; los contadores de interfaz pueden incluirlas.
+
+El programa de la campaña incluye explícitamente el extremo $f(1)/2$ en el último rango. Sus dos modos usan ese mismo cálculo corregido. El modo ponderado asigna peso 1.2658 a los primeros ocho rangos de cada bloque de 24 y peso 1 a los dieciséis restantes. El código usa \texttt{rank\%24}; no consulta el tipo físico de núcleo. La interpretación como reparto P/E requiere verificar la correspondencia entre rangos y tipos de núcleo. Los logs de afinidad ayudan a reconstruirla, pero el algoritmo no la detecta por sí mismo.
+
+\subsection{Tiempo interno, tiempo de pared y fases}
+
+\begin{table}[H]\centering\small
+\caption{Operaciones incluidas y excluidas en el tiempo interno de matrices.}
+\begin{tabularx}{\linewidth}{p{3.5cm}X}
+\toprule Etapa & Relación con \texttt{T\_Total} \\
+\midrule
+Antes del cronómetro & \texttt{MPI\_Init}, reservas, inicialización de $A/B$, creación de comunicadores y barrera inicial. \\
+Dentro, variante 1D & Distribución de $A$, difusión de $B$, cálculo, reunión de $C$ y barrera final. \\
+Dentro, variante 2D & Empaquetamiento y reparto inicial, pasos SUMMA, cálculo, reunión, desempaquetamiento y barrera final. \\
+Después del cronómetro & Liberaciones, reducciones de métricas, comprobaciones numéricas, salida y \texttt{MPI\_Finalize}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Cada rango mide duraciones con \texttt{MPI\_Wtime}; se reporta el máximo entre rangos. La creación de comunicadores jerárquicos ocurre antes del cronómetro, de modo que su coste no se incluye en la comparación interna. La columna \texttt{pared\_s}, medida por Python, abarca además comprobaciones de memoria para matrices grandes, lectura remota de contadores, lanzamiento, inicialización, comprobaciones finales y cierre. Representa el coste del procedimiento de prueba; no es un cronómetro puro del comando \texttt{mpirun}.
+
+Las fases se reducen por separado. Para tiempos locales $t_{r,k}$,
+\[
+ \max_r\sum_k t_{r,k}\ \leq\ \sum_k\max_r t_{r,k}.
+\]
+La suma de máximos mezcla procesos diferentes. Además, un proceso puede entrar a \texttt{Gather} mientras otro sigue en \texttt{Bcast}; parte del tiempo de la colectiva es espera. Por ello no se apilan los máximos como porcentajes de un único total, ni se interpreta su suma como tiempo de red. La barrera final también aporta tiempo al total de matrices. El trapecio y el microbenchmark tienen límites propios y no usan necesariamente esa barrera final.
+
+\subsection{Tráfico, unidades y comprobaciones}
+
+La campaña lee contadores TX y RX antes y después en cada nodo participante. Las consultas son secuenciales mediante SSH; los intervalos no están sincronizados exactamente. El tráfico de control y de aplicaciones ajenas puede contribuir. Se utiliza TX agregado para comparar configuraciones: sumar TX y RX entre todos los nodos contaría ambas observaciones de muchos mensajes. En la batería ampliada solo se conserva TX+RX del servidor; no se convierte esa cifra en TX agregado del clúster.
+
+En este informe, MB significa $10^6$ bytes y GiB significa $2^{30}$ bytes. Una matriz pesa $M=8N^2$ bytes: para $N=3072$, $M=75.497472$ MB. Las cifras de interfaces no representan directamente carga útil MPI, tráfico radiado o retransmisiones TCP identificadas.
+
+Las matrices se comprueban mediante suma diagonal y suma ponderada, y la difusión mediante una huella de 64 bits idéntica entre procesos. Son controles útiles de consistencia, con precisión limitada por la impresión en los logs; no sustituyen una comparación elemento por elemento con una referencia independiente. El trapecio se compara con $\pi$ y la campaña rechaza errores mayores que $10^{-8}$. La auditoría del anexo comprueba la coherencia entre archivos sin convertir estos controles en una demostración general de corrección.

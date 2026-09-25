@@ -33,12 +33,12 @@
 \pagestyle{fancy}
 \fancyhf{}
 \lhead{UNSA -- Ciencia de la Computación}
-\rhead{Informe final MPI (versión revisada)}
+\rhead{Estudio experimental de MPI}
 \cfoot{\thepage}
 \usepackage{microtype}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,urlcolor=black,citecolor=black,
-  pdftitle={Informe final reproducible de MPI - version revisada},
+  pdftitle={Estudio experimental de MPI: rendimiento, comunicacion y memoria},
   pdfauthor={Paredes Malaga Jose Carlos; Jheeremy Manuel Alvarez Astete; Jose Alejandro Machaca Muniz; David Tamo Turpo; Wilson Ramos}}
 \newtcolorbox{idea}{colback=white,colframe=black,arc=2pt,boxrule=0.6pt,left=6pt,right=6pt}
 \setlength{\emergencystretch}{2em}
@@ -48,6 +48,7 @@
 \newcommand{\figura}[3]{\begin{figure}[H]\centering\includegraphics[width=#2\linewidth]{img/#1}\caption{#3}\end{figure}}
 
 \begin{document}
+\hypersetup{pageanchor=false}
 \begin{titlepage}
     \centering
     \vspace*{1.2cm}
@@ -56,10 +57,10 @@
     {\scshape\large Escuela Profesional de Ciencia de la Computación \par}
     \vspace{2.1cm}
     \rule{\linewidth}{0.5mm}\\[0.4cm]
-    {\huge\bfseries Multiplicación de Matrices y Trapecio\\[0.12cm]}
-    {\Large Informe final reproducible de optimización MPI\\[0.2cm]}
-    {\normalsize\itshape Ethernet, Wi-Fi, difusión jerárquica y 243 registros documentados\\[0.1cm]}
-    {\normalsize Versión revisada con auditoría de la evidencia y análisis de variabilidad\\[0.35cm]}
+    {\huge\bfseries Rendimiento de MPI en un clúster de 96 núcleos\\[0.25cm]}
+    {\Large Multiplicación de matrices y regla del trapecio\\[0.2cm]}
+    {\normalsize\itshape Estudio experimental de comunicación, memoria y paralelismo\\[0.2cm]}
+    {\normalsize 243 registros auditados, repeticiones individuales y análisis reproducible\\[0.35cm]}
     \rule{\linewidth}{0.5mm}
     \vspace{2.4cm}
     \begin{minipage}[t]{0.5\textwidth}
@@ -82,17 +83,21 @@
     {\large Repositorio: \url{https://github.com/dtamotu/cluster-mpi-96-optimizaciones}\par}
     {\large Arequipa, Perú -- 25 de septiembre de 2026\par}
 \end{titlepage}
+\hypersetup{pageanchor=true}
 \pagenumbering{roman}
 \tableofcontents
 \clearpage
 \pagenumbering{arabic}
 \input{resumen_final}
-\input{contenido}
-\input{optimizacion_final}
+\clearpage
+\input{estudio_metodologia}
+\input{estudio_resultados}
+\input{estudio_modelos}
 \input{variabilidad}
+\input{estudio_propuestas}
 \input{auditoria}
 \input{conclusiones}
 \clearpage
 \appendix
-\input{anexos}
+\input{estudio_anexos}
 \end{document}

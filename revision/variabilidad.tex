@@ -12,7 +12,7 @@ Las dos baterías ejecutaron cada configuración una sola vez; la campaña repit
 \begin{itemize}
 \item \textbf{Con 96 procesos, las corridas únicas de matrices quedaron próximas a las medianas posteriores.} Con $N=3072$ y $N=6144$, las baterías quedan a menos de un 2\,\% de la mediana repetida en las redes medidas. El tiempo está dominado por la comunicación, que dio resultados próximos en los tres momentos.
 \item \textbf{Con 24 procesos, la campaña fue sistemáticamente más lenta:} un 19--27\,\% con $N=3072$ y un 37\,\% con $N=6144$. Ninguna de las corridas repetidas de $N=3072$ por Ethernet bajó hasta los tiempos de las baterías.
-\item \textbf{La diferencia está en el cálculo, no en la red.} La tabla~\ref{tab:variabilidad-fases} separa las fases de las configuraciones con 24 procesos.
+\item \textbf{La mayor diferencia observada está en el cálculo.} La tabla~\ref{tab:variabilidad-fases} separa las fases de las configuraciones con 24 procesos.
 \end{itemize}
 
 \begin{table}[htbp]
@@ -20,14 +20,14 @@ Las dos baterías ejecutaron cada configuración una sola vez; la campaña repit
 \input{tablas/variabilidad_fases}
 \end{table}
 
-$T_{Dist}$ cambia poco (hasta un 11\,\%), mientras $T_{Calc}$ crece entre 1.3 y 1.5 veces en la campaña (0.304 a 0.455 s con $N=3072$ por Ethernet; 2.891 a 4.447 s con $N=6144$). Esto es coherente con la diferencia de compilación: sin \texttt{-march=native}, el compilador solo puede vectorizar con el conjunto básico x86-64 (SSE2) y no emite las instrucciones AVX2 y FMA del procesador. No es una prueba aislada, porque también cambió el momento de ejecución; comprobarlo requiere recompilar con los mismos flags y repetir.
+$T_{Dist}$ cambia poco (hasta un 11\,\%), mientras $T_{Calc}$ crece entre 1.3 y 1.5 veces en la campaña (0.304 a 0.455 s con $N=3072$ por Ethernet; 2.891 a 4.447 s con $N=6144$). La diferencia es compatible con el cambio de compilación: las baterías registran \texttt{-O3 -march=native -funroll-loops}, mientras la campaña registra \texttt{-O3 -std=c11 -Wall -Wextra}. No se inspeccionó el ensamblado ni se conservaron informes de vectorización que permitan atribuirla a instrucciones concretas. También cambió el momento de ejecución. Una prueba causal requiere recompilar el mismo código, alternar binarios bajo condiciones compartidas y repetir.
 
 El trapecio muestra un patrón similar con 24 procesos (3.84--3.87 s en las baterías frente a 5.18 s de mediana), pero ahí la comparación mezcla además dos programas: las baterías usaron \archivo{trapecio.c} y la campaña, \archivo{trapecio_asimetrico} en modo simétrico, con la corrección del extremo.
 
 \subsection{Consecuencias para la lectura del informe}
 
 \begin{enumerate}
-\item Las conclusiones cualitativas se mantienen: en todas las fuentes, un nodo con 24 procesos es el mejor punto para matrices y la difusión entre nodos domina el tiempo con 96 procesos.
-\item Los cocientes $T_{96}/T_{24}$ de la campaña (4.77 y 4.57) no deben mezclarse con los de las baterías (6.52 para $N=6144$). Con un binario más rápido en el cálculo, la ventaja de un nodo es mayor.
+\item Las conclusiones cualitativas se mantienen: en las dos baterías, un nodo con 24 procesos es el mejor punto de los valores de $P$ ensayados para matrices y la difusión entre nodos domina el tiempo con 96 procesos.
+\item Los cocientes $T_{96}/T_{24}$ de la campaña (4.77 y 4.57) no deben mezclarse con los de las baterías (6.52 para $N=6144$). Si mejorara únicamente el cálculo manteniendo iguales los demás costes, la configuración local, más sensible a ese cálculo, podría ganar más; los datos actuales no aíslan esa intervención.
 \item Una diferencia pequeña entre dos corridas únicas con 24 procesos, por ejemplo entre redes, no es interpretable: la variación entre momentos supera esas diferencias.
 \end{enumerate}

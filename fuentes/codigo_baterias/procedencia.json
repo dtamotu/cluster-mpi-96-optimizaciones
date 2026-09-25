@@ -1,0 +1,21 @@
+{
+  "commit": "f81f488a5c3e2e8e181567c1d8176c52e2441e57",
+  "nota": "Fuentes recuperadas del commit histórico. No afirma identidad con un binario conservado.",
+  "archivos": [
+    {
+      "archivo": "kernels.h",
+      "origen_git": "src/kernels.h",
+      "sha256": "71b955b2264d3ce53b0e9195ff6c72de8a839a4b87987d4aa72e0add485d6cde"
+    },
+    {
+      "archivo": "mpi_matrix_2d.c",
+      "origen_git": "src/mpi_matrix_2d.c",
+      "sha256": "3f637894d7d696e10628302156288665be66d3397c2221d5a5f9c0e4507dc260"
+    },
+    {
+      "archivo": "trapecio.c",
+      "origen_git": "src/trapecio.c",
+      "sha256": "b7ab928666e583ea0088d8cadcfd144bd498bdb5a41dcbf1f71e0fc1b4f05b7d"
+    }
+  ]
+}

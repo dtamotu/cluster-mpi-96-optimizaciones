@@ -1,0 +1,115 @@
+\section{Reproducción, archivos y trazabilidad}\label{sec:repro}
+
+\subsection{Carpeta autocontenida y reconstrucción}
+
+El repositorio contiene evidencia, código, scripts de análisis, fuentes LaTeX y figuras. No necesita que los workers estén conectados para reconstruir el informe. La carpeta usada en esta computadora es \archivo{/home/alumno16/cluster-mpi-96-optimizaciones}. Los comandos siguientes regeneran tablas y figuras desde las copias locales y compilan el documento:
+
+\begin{lstlisting}[language=bash]
+cd /home/alumno16/cluster-mpi-96-optimizaciones/revision
+./compilar.sh
+\end{lstlisting}
+
+Se requiere Python 3 con NumPy y Matplotlib, \texttt{pdflatex} y los paquetes LaTeX indicados en el preámbulo. \archivo{compilar.sh} ejecuta cuatro scripts: \archivo{generar_datos.py}, \archivo{generar_optimizacion.py}, \archivo{auditar_evidencia.py} y \archivo{generar_analisis.py}; después hace tres pasadas de LaTeX. Los scripts leen la evidencia sin editarla. \texttt{EVIDENCIA\_MPI=/ruta/al/repositorio} permite indicar otra copia. Las comprobaciones contra originales externos son opcionales y su número puede variar entre computadoras; las tablas de rendimiento proceden de los datos internos.
+
+\begin{table}[H]\centering\small
+\caption{Mapa de archivos. Rutas relativas a la raíz del repositorio.}
+\begin{tabularx}{\linewidth}{p{6.2cm}X}
+\toprule Archivo o directorio & Función \\
+\midrule
+\archivo{datos/ethernet/}, \archivo{datos/wifi/} & CSV y logs de las 50 ejecuciones iniciales. \\
+\archivo{datos/ampliada/} & CSV, JSON y logs de la batería de 75 ejecuciones. \\
+\archivo{datos/historicos/} & Series de madrugada, mediodía y kernel local. \\
+\archivo{resultados_optimizacion/20260925_074354/} & 82 ejecuciones: matrices, Bcast y 2D. \\
+\archivo{resultados_optimizacion/20260925_extra/} & 36 ejecuciones: tamaños mayores y trapecio. \\
+\archivo{src/}, \archivo{experimentos.py} & Programa y protocolo de la campaña. \\
+\archivo{fuentes/codigo_baterias/} & Fuentes recuperadas del commit histórico, con manifestación de origen. \\
+\archivo{revision/datos/analisis_profundo.json} & Efectos sin redondeo nuevo, razones por bloque, tráfico por nodo y modelo de memoria. \\
+\archivo{revision/datos/catalogo_campana.csv} & Las 118 observaciones con hora de inicio, reparto, métricas y ruta a su log. \\
+\archivo{revision/datos/auditoria.json} & Comprobaciones automáticas de evidencia. \\
+\archivo{revision/estudio_*.tex} & Metodología, resultados, modelos, propuestas y anexos de esta edición. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Cómo seguir una cifra hasta su ejecución}
+
+La reducción Ethernet de 6.260 a 3.217 s se reconstruye filtrando el CSV de la campaña principal por \texttt{kind=matriz}, \texttt{red=Ethernet}, \texttt{n=3072}, \texttt{p=96}, \texttt{nodos=4}, y separando \texttt{variante=1d} de \texttt{1d-hier}. Cada grupo tiene cinco filas. Se toma la mediana de \texttt{T\_Total}, sin mezclar la columna \texttt{pared\_s}. El campo \texttt{log} apunta al archivo que conserva el comando, los contadores y la línea \texttt{RESULT\_2D}.
+
+Para TX por nodo se resta \texttt{antes[host][0]} a \texttt{despues[host][0]} en el objeto JSON inicial del log y se divide entre $10^6$. Se resume cada host por separado. La mediana agregada se calcula sumando primero los cuatro deltas de cada corrida; ambas operaciones no se intercambian sin cambiar el estadístico.
+
+En las primeras baterías, el nombre del log contiene experimento, tamaño y procesos; en la ampliada añade la red. Los CSV originales conservan la precisión exportada. La impresión con tres decimales en una tabla no debe usarse para recalcular un efecto pequeño: el JSON de análisis conserva los valores usados antes del redondeo.
+
+\subsection{Comando representativo de la campaña}
+
+El siguiente ejemplo documenta $24+24+24+24$ por Ethernet. La ruta de binarios corresponde al despliegue de la campaña. El comando exacto de cada ejecución se encuentra en su log; reconstruir el PDF no ejecuta estos comandos.
+
+\begin{lstlisting}[language=bash]
+mpirun \
+  -H 10.7.50.202:24,10.7.50.203:24,10.7.50.201:24,10.7.50.204:24 \
+  -np 96 --map-by slot --rank-by slot --bind-to core \
+  --mca plm_rsh_agent "ssh -F scripts/ssh_config" \
+  --mca btl self,vader,tcp \
+  --mca btl_tcp_if_include 10.7.50.0/24 \
+  --mca oob_tcp_if_include 10.7.50.0/24 \
+  /var/tmp/cluster-mpi-96-optimizaciones/bin/mpi_matrix_2d \
+  3072 1d-hier tiled 64
+\end{lstlisting}
+
+Para conocer el plan conservado sin ejecutar pruebas:
+\begin{lstlisting}[language=bash]
+cd /home/alumno16/cluster-mpi-96-optimizaciones
+python3 experimentos.py plan
+python3 experimentos.py plan-extra
+\end{lstlisting}
+Los comandos históricos de \archivo{scripts/} y los programas actuales corresponden a etapas distintas. Compilar hoy una fuente recuperada reconstruye un programa, pero no garantiza repetir su tiempo: compilador, flags, frecuencia, carga y red forman parte de la configuración.
+
+\section{Detalle de las baterías y antecedentes}
+
+\subsection{Primera batería: trapecio}
+Cada tabla conserva las dos redes y los cinco números de procesos. Son ejecuciones únicas. $T_E$ y $T_W$ están en segundos; speedup y eficiencia usan el proceso único de la misma red.
+\begin{table}[H]\caption{Trapecio, $n=10^8$.}\input{tablas/trapecio_100000000}\end{table}
+\begin{table}[H]\caption{Trapecio, $n=10^{11}$.}\input{tablas/trapecio_100000000000}\end{table}
+
+\subsection{Primera batería: matrices y controles}
+La tabla de $N=3072$ se encuentra en el cuerpo del informe; las dos siguientes completan las 30 ejecuciones de matrices de la primera batería.
+\begin{table}[H]\caption{Matrices, $N=1024$.}\input{tablas/matrices_1024}\end{table}
+\begin{table}[H]\caption{Matrices, $N=2048$.}\input{tablas/matrices_2048}\end{table}
+\begin{table}[H]\caption{Huellas impresas en las matrices de la primera batería. Su coincidencia es un control de consistencia, no una comparación completa elemento por elemento.}\input{tablas/checksums}\end{table}
+
+\subsection{Batería ampliada completa}
+Se conservan los puntos intermedios de 48 y 72 procesos. En trapecio, la columna que el CSV llama \texttt{T\_Gather} corresponde a reducción; en matrices, a reunión. Distribuir vale cero cuando esa fase no existe en el programa. Los valores MB son del servidor, con el alcance explicado en metodología.
+\begin{landscape}\footnotesize\renewcommand{\arraystretch}{1.0}
+\input{tablas/analisis_ampliada_completa}
+\end{landscape}
+
+\subsection{Tráfico histórico y serie del mediodía}
+Estas series mantienen sus protocolos de origen. El antecedente de medianoche con ocho procesos no comparte fila con los MB de la serie de dieciséis procesos. Los JSON históricos ofrecen un respaldo más limitado que la campaña con logs completos y sellos.
+\begin{table}[H]\caption{Serie histórica con contadores: cuatro nodos y 16 procesos en las pruebas distribuidas.}\input{tablas/madrugada_mb}\end{table}
+\begin{table}[H]\caption{Serie histórica del mediodía: comparación de redes y descomposiciones. Las repeticiones indicadas pertenecen a esta serie.}\input{tablas/mediodia}\end{table}
+
+\section{Detalle de la campaña repetida}
+
+La tabla siguiente resume todas las configuraciones de las 118 ejecuciones. El reparto por nodo se obtiene de $P/H$ y de la tabla~\ref{tab:reparto}. Para Bcast se usa \texttt{T\_Bcast}; para las otras pruebas, \texttt{T\_Total}. Los valores individuales están en \archivo{revision/datos/catalogo_campana.csv} y las comparaciones centrales se muestran como puntos en las figuras. Las estadísticas no incorporan pilotos.
+
+\begin{landscape}\footnotesize\renewcommand{\arraystretch}{1.0}
+\input{tablas/optimizacion_detalle}
+\end{landscape}
+
+\begin{table}[H]\caption{Razones entre ejecuciones del mismo bloque aleatorizado. A/B coincide con la tabla~\ref{tab:efectos}; no se exige que las corridas de un bloque sean consecutivas.}\label{tab:bloques}
+\input{tablas/analisis_bloques}
+\end{table}
+
+\section{Referencias}
+\begingroup
+\renewcommand{\refname}{}
+\begin{thebibliography}{9}
+\raggedright
+\bibitem{foster} Ian Foster. \emph{Designing and Building Parallel Programs}. Addison-Wesley, 1995. Capítulo 2, Designing Parallel Algorithms. \url{https://www.mcs.anl.gov/~itf/dbpp/text/node14.html}.
+\bibitem{summa} Robert A. van de Geijn y Jerrell Watts. \emph{SUMMA: Scalable Universal Matrix Multiplication Algorithm}. LAPACK Working Note 96. \url{https://www.netlib.org/lapack/lawnspdf/lawn96.pdf}.
+\bibitem{ompi-tcp} Open MPI. \emph{FAQ: Tuning the run-time characteristics of MPI TCP communications}. Documentación para Open MPI 4.x y anteriores. \url{https://www.open-mpi.org/faq/?category=tcp}.
+\bibitem{ompi-tuned} Open MPI 4.1.6. \emph{coll\_tuned\_bcast\_decision.c}. Enumeración y selección de algoritmos de difusión. \url{https://github.com/open-mpi/ompi/blob/v4.1.6/ompi/mca/coll/tuned/coll_tuned_bcast_decision.c}.
+\bibitem{ompi-shared} Open MPI. \emph{MPI\_Comm\_split\_type}. Se usa la semántica de \texttt{MPI\_COMM\_TYPE\_SHARED}, no las extensiones posteriores a la versión del laboratorio. \url{https://docs.open-mpi.org/en/main/man-openmpi/man3/MPI_Comm_split_type.3.html}.
+\bibitem{gcc-x86} GNU Compiler Collection. \emph{x86 Options}. Opciones \texttt{-march} y selección de arquitectura. \url{https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html}.
+\bibitem{datos} Registros y fuentes del laboratorio, 24--25 de septiembre de 2026. CSV, JSON, logs, manifiestos y código conservados en \url{https://github.com/dtamotu/cluster-mpi-96-optimizaciones}. La copia local permite regenerar el informe sin acceder al repositorio remoto.
+\end{thebibliography}
+\endgroup
