@@ -1,5 +1,10 @@
 # Informe actualizado: 96 núcleos, Ethernet y Wi-Fi
 
+Esta copia derivada añade los experimentos de optimización en
+[OPTIMIZACIONES.md](OPTIMIZACIONES.md) y el informe nuevo en
+[informe_optimizacion.tex](informe_optimizacion.tex). Conserva a continuación
+las instrucciones del informe anterior y sus datos originales.
+
 Repositorio: [github.com/dtamotu/cluster-mpi-96](https://github.com/dtamotu/cluster-mpi-96) (privado).
 
 Abrir `main.pdf`. El documento conserva el diseño de carátula, integrantes, curso,

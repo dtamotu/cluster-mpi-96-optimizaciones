@@ -3,6 +3,11 @@
 /main.log
 /main.out
 /main.toc
+/informe_optimizacion.aux
+/informe_optimizacion.log
+/informe_optimizacion.out
+/informe_optimizacion.toc
+/bin/
 *.fls
 *.fdb_latexmk
 *.synctex.gz

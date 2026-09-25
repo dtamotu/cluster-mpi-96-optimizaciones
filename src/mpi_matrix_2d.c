@@ -1,11 +1,12 @@
 // Multiplicación de matrices C = A x B con MPI, en dos descomposiciones:
-//   1d : franjas de filas (igual que ../mpi_matrix_profiling.c): Scatterv(A) + Bcast(B completa) + Gatherv(C)
+//   1d : franjas de filas: Scatterv(A) + Bcast(B completa) + Gatherv(C)
+//   1d-hier : mismo cálculo, difusión explícita entre líderes de nodo y luego local
 //   2d : bloques cuadrados en una malla q x q (algoritmo SUMMA). Requiere P = q*q y N % q == 0.
 // y dos núcleos de cálculo local:
 //   ikj   : bucle original
 //   tiled : bucle por teselas de bs x bs (cache blocking)
 //
-// Uso: mpi_matrix_2d <N> <1d|2d> <ikj|tiled> [bs]
+// Uso: mpi_matrix_2d <N> <1d|1d-hier|2d> <ikj|tiled> [bs]
 // Con MAP_DEBUG=1 en el entorno, imprime el nodo donde corre cada rango.
 #include <mpi.h>
 #include <math.h>
@@ -29,7 +30,7 @@ int main(int argc, char **argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &P);
 
     if (argc < 4) {
-        if (rank == 0) fprintf(stderr, "uso: %s <N> <1d|2d> <ikj|tiled> [bs]\n", argv[0]);
+        if (rank == 0) fprintf(stderr, "uso: %s <N> <1d|1d-hier|2d> <ikj|tiled> [bs]\n", argv[0]);
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
     const int N = atoi(argv[1]);
@@ -37,6 +38,11 @@ int main(int argc, char **argv) {
     const char *kernel = argv[3];
     const int bs = argc > 4 ? atoi(argv[4]) : 64;
     const int is2d = strcmp(algo, "2d") == 0;
+    const int is_hier = strcmp(algo, "1d-hier") == 0;
+    if (!is2d && strcmp(algo, "1d") != 0 && !is_hier) {
+        if (rank == 0) fprintf(stderr, "algoritmo desconocido: %s\n", algo);
+        MPI_Abort(MPI_COMM_WORLD, 2);
+    }
 
     int q = (int)lround(sqrt((double)P));
     if (is2d && (q * q != P || N % q != 0)) {
@@ -71,7 +77,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    double t_dist = 0, t_summa = 0, t_calc = 0, t_gather = 0;
+    double t_dist = 0, t_scatter = 0, t_bcast = 0, t_summa = 0, t_calc = 0, t_gather = 0;
     double t0, t_total;
 
     if (!is2d) {
@@ -88,12 +94,28 @@ int main(int argc, char **argv) {
         double *C_loc = calloc((size_t)counts[rank], sizeof(double));
         if (rank != 0) B = malloc(nn * sizeof(double));
 
+        MPI_Comm local_comm = MPI_COMM_NULL, leaders_comm = MPI_COMM_NULL;
+        int local_rank = -1;
+        if (is_hier) {
+            MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, rank, MPI_INFO_NULL, &local_comm);
+            MPI_Comm_rank(local_comm, &local_rank);
+            MPI_Comm_split(MPI_COMM_WORLD, local_rank == 0 ? 0 : MPI_UNDEFINED, rank, &leaders_comm);
+        }
+
         MPI_Barrier(MPI_COMM_WORLD);
         t0 = MPI_Wtime();
         double t = MPI_Wtime();
         MPI_Scatterv(A, counts, displs, MPI_DOUBLE, A_loc, counts[rank], MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        MPI_Bcast(B, (int)nn, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        t_dist = MPI_Wtime() - t;
+        t_scatter = MPI_Wtime() - t;
+        t = MPI_Wtime();
+        if (is_hier) {
+            if (local_rank == 0) MPI_Bcast(B, (int)nn, MPI_DOUBLE, 0, leaders_comm);
+            MPI_Bcast(B, (int)nn, MPI_DOUBLE, 0, local_comm);
+        } else {
+            MPI_Bcast(B, (int)nn, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+        }
+        t_bcast = MPI_Wtime() - t;
+        t_dist = t_scatter + t_bcast;
 
         t = MPI_Wtime();
         local_gemm(kernel, bs, rows, N, N, A_loc, N, B, N, C_loc, N);
@@ -105,6 +127,10 @@ int main(int argc, char **argv) {
         MPI_Barrier(MPI_COMM_WORLD);
         t_total = MPI_Wtime() - t0;
 
+        if (is_hier) {
+            if (leaders_comm != MPI_COMM_NULL) MPI_Comm_free(&leaders_comm);
+            MPI_Comm_free(&local_comm);
+        }
         free(A_loc); free(C_loc); free(counts); free(displs);
         if (rank != 0) free(B);
     } else {
@@ -174,8 +200,8 @@ int main(int argc, char **argv) {
     }
 
     // Máximos entre rangos (el proceso más lento marca el ritmo) y media del cálculo.
-    double loc[5] = {t_dist, t_summa, t_calc, t_gather, t_total}, mx[5], calc_sum;
-    MPI_Reduce(loc, mx, 5, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+    double loc[7] = {t_dist, t_summa, t_calc, t_gather, t_total, t_scatter, t_bcast}, mx[7], calc_sum;
+    MPI_Reduce(loc, mx, 7, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
     MPI_Reduce(&t_calc, &calc_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (rank == 0) {
@@ -186,9 +212,9 @@ int main(int argc, char **argv) {
             for (int j = 0; j < N; j++)
                 wsum += C[(size_t)i * N + j] * (double)((i * 31 + j * 17) % 13 + 1);
         printf("RESULT_2D: N=%d, Procs=%d, Algo=%s, Kernel=%s, BS=%d, T_Dist=%.6f, T_Summa=%.6f, "
-               "T_Calc=%.6f, T_CalcAvg=%.6f, T_Gather=%.6f, T_Total=%.6f, GFLOPS=%.4f, Checksum=%.2f, WSum=%.6e\n",
+               "T_Calc=%.6f, T_CalcAvg=%.6f, T_Gather=%.6f, T_Total=%.6f, T_Scatter=%.6f, T_Bcast=%.6f, GFLOPS=%.4f, Checksum=%.2f, WSum=%.6e\n",
                N, P, algo, kernel, bs, mx[0], mx[1], mx[2], calc_sum / P, mx[3], mx[4],
-               2.0 * N * (double)N * N / (mx[4] * 1e9), trace, wsum);
+               mx[5], mx[6], 2.0 * N * (double)N * N / (mx[4] * 1e9), trace, wsum);
         free(A); free(B); free(C);
     }
     MPI_Finalize();
