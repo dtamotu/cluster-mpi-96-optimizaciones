@@ -4,6 +4,10 @@ Esta carpeta conserva el historial del proyecto original y contiene las fuentes,
 binarios compilables, scripts, datos anteriores, mediciones nuevas y el informe
 LaTeX. El repositorio original permanece independiente.
 
+Repositorio derivado: https://github.com/dtamotu/cluster-mpi-96-optimizaciones
+
+Origen: https://github.com/dtamotu/cluster-mpi-96
+
 ## Uso
 
 ```bash
@@ -12,7 +16,9 @@ cd /home/alumno16/cluster-mpi-96-optimizaciones
 python3 experimentos.py plan
 python3 experimentos.py smoke
 python3 experimentos.py run --timeout 420
-python3 generar_informe_optimizacion.py resultados_optimizacion/FECHA/resultados.csv
+python3 experimentos.py extra
+python3 auditar_resultados.py resultados_optimizacion/FECHA resultados_optimizacion/OTRA_FECHA
+python3 generar_informe_optimizacion.py resultados_optimizacion/FECHA/resultados.csv resultados_optimizacion/OTRA_FECHA/resultados.csv
 # O bien ejecutar preparación, prueba corta, batería e informe:
 ./ejecutar_todo.sh
 ```
@@ -37,6 +43,9 @@ proyecto y todos los resultados permanecen en la carpeta local.
   `scatter_allgather` solicitados a Open MPI `tuned`.
 - Matrices 1D frente a SUMMA 2D con 64 procesos en cuatro nodos. La versión
   2D existente exige un número cuadrado de procesos y no acepta 96.
+- Tamaños 6144 y 7168 por Ethernet, con 24 y 96 procesos.
+- Trapecio simétrico y asimétrico, con el extremo numérico corregido, para
+  \(10^8\) y \(10^{11}\) trapecios y 24/96 procesos.
 
 El informe nuevo es [informe_optimizacion.tex](informe_optimizacion.tex). La
 fuente principal del informe histórico, [main.tex](main.tex), se conserva.

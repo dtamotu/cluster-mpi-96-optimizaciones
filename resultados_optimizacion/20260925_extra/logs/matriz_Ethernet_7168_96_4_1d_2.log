@@ -1,0 +1,229 @@
+{
+  "inicio": "2026-09-25T08:31:38.607852-05:00",
+  "comando": [
+    "mpirun",
+    "-H",
+    "10.7.50.202:24,10.7.50.203:24,10.7.50.201:24,10.7.50.204:24",
+    "-np",
+    "96",
+    "--map-by",
+    "slot",
+    "--rank-by",
+    "slot",
+    "--bind-to",
+    "core",
+    "--mca",
+    "plm_rsh_agent",
+    "ssh -F /home/alumno16/cluster-mpi-96-optimizaciones/scripts/ssh_config",
+    "--mca",
+    "btl",
+    "self,vader,tcp",
+    "--mca",
+    "btl_tcp_if_include",
+    "10.7.50.0/24",
+    "--mca",
+    "oob_tcp_if_include",
+    "10.7.50.0/24",
+    "/var/tmp/cluster-mpi-96-optimizaciones/bin/mpi_matrix_2d",
+    "7168",
+    "1d",
+    "tiled",
+    "64"
+  ],
+  "antes": {
+    "10.7.50.202": [
+      26048528900,
+      8626307200
+    ],
+    "10.7.50.203": [
+      3907964424,
+      15858803005
+    ],
+    "10.7.50.201": [
+      10627312092,
+      10414796326
+    ],
+    "10.7.50.204": [
+      2658833708,
+      10872432924
+    ]
+  },
+  "despues": {
+    "10.7.50.202": [
+      28530934381,
+      8958837015
+    ],
+    "10.7.50.203": [
+      4021227589,
+      17260290728
+    ],
+    "10.7.50.201": [
+      12031353110,
+      11391898675
+    ],
+    "10.7.50.204": [
+      2773067639,
+      12272551955
+    ]
+  },
+  "estado": "ok"
+}
+
+RESULT_2D: N=7168, Procs=96, Algo=1d, Kernel=tiled, BS=64, T_Dist=33.244666, T_Summa=0.000000, T_Calc=1.817384, T_CalcAvg=1.508243, T_Gather=17.363087, T_Total=35.129908, T_Scatter=2.717303, T_Bcast=30.936774, GFLOPS=20.9675, Checksum=120229724.49, WSum=6.032646e+12
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+

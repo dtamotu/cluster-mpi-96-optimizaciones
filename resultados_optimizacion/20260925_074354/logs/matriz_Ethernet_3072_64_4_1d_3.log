@@ -1,0 +1,181 @@
+{
+  "inicio": "2026-09-25T08:07:38.793179-05:00",
+  "comando": [
+    "mpirun",
+    "-H",
+    "10.7.50.202:16,10.7.50.203:16,10.7.50.201:16,10.7.50.204:16",
+    "-np",
+    "64",
+    "--map-by",
+    "slot",
+    "--rank-by",
+    "slot",
+    "--bind-to",
+    "core",
+    "--mca",
+    "plm_rsh_agent",
+    "ssh -F /home/alumno16/cluster-mpi-96-optimizaciones/scripts/ssh_config",
+    "--mca",
+    "btl",
+    "self,vader,tcp",
+    "--mca",
+    "btl_tcp_if_include",
+    "10.7.50.0/24",
+    "--mca",
+    "oob_tcp_if_include",
+    "10.7.50.0/24",
+    "/var/tmp/cluster-mpi-96-optimizaciones/bin/mpi_matrix_2d",
+    "3072",
+    "1d",
+    "tiled",
+    "64"
+  ],
+  "antes": {
+    "10.7.50.202": [
+      16617165821,
+      6679978053
+    ],
+    "10.7.50.203": [
+      2534948878,
+      10380128789
+    ],
+    "10.7.50.201": [
+      5297225311,
+      6158380208
+    ],
+    "10.7.50.204": [
+      1604008991,
+      5396876644
+    ]
+  },
+  "despues": {
+    "10.7.50.202": [
+      16914575995,
+      6740552961
+    ],
+    "10.7.50.203": [
+      2555166457,
+      10479218250
+    ],
+    "10.7.50.201": [
+      5317439099,
+      6257473565
+    ],
+    "10.7.50.204": [
+      1624215755,
+      5495970783
+    ]
+  },
+  "estado": "ok"
+}
+
+RESULT_2D: N=3072, Procs=64, Algo=1d, Kernel=tiled, BS=64, T_Dist=2.557276, T_Summa=0.000000, T_Calc=0.114819, T_CalcAvg=0.101597, T_Gather=1.901792, T_Total=3.147406, T_Scatter=0.516836, T_Bcast=2.489048, GFLOPS=18.4222, Checksum=22083010.24, WSum=4.748730e+11
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+

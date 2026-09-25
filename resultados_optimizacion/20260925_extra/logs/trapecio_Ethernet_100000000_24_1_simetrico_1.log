@@ -1,0 +1,72 @@
+{
+  "inicio": "2026-09-25T08:28:46.305444-05:00",
+  "comando": [
+    "mpirun",
+    "-H",
+    "10.7.50.202:24",
+    "-np",
+    "24",
+    "--map-by",
+    "slot",
+    "--rank-by",
+    "slot",
+    "--bind-to",
+    "core",
+    "--mca",
+    "plm_rsh_agent",
+    "ssh -F /home/alumno16/cluster-mpi-96-optimizaciones/scripts/ssh_config",
+    "--mca",
+    "btl",
+    "self,vader,tcp",
+    "--mca",
+    "btl_tcp_if_include",
+    "10.7.50.0/24",
+    "--mca",
+    "oob_tcp_if_include",
+    "10.7.50.0/24",
+    "--report-bindings",
+    "/var/tmp/cluster-mpi-96-optimizaciones/bin/trapecio_asimetrico",
+    "100000000",
+    "0"
+  ],
+  "antes": {
+    "10.7.50.202": [
+      19903135907,
+      7799743681
+    ]
+  },
+  "despues": {
+    "10.7.50.202": [
+      19903137495,
+      7799752421
+    ]
+  },
+  "estado": "ok"
+}
+
+RESULT_ASYM: N=100000000, Procs=24, Modo=Simetrico, T_CalcMax=0.005175, T_CalcMin=0.003185, Desbalance=1.625, T_Reduce=0.001999, T_Total=0.005188, Error=2.44e-14, Pi=3.14159265358982
+
+[servidor:412760] MCW rank 0 bound to socket 0[core 0[hwt 0]]: [B/././././././././././././././././././././././.]
+[servidor:412760] MCW rank 1 bound to socket 0[core 1[hwt 0]]: [./B/./././././././././././././././././././././.]
+[servidor:412760] MCW rank 2 bound to socket 0[core 2[hwt 0]]: [././B/././././././././././././././././././././.]
+[servidor:412760] MCW rank 3 bound to socket 0[core 3[hwt 0]]: [./././B/./././././././././././././././././././.]
+[servidor:412760] MCW rank 4 bound to socket 0[core 4[hwt 0]]: [././././B/././././././././././././././././././.]
+[servidor:412760] MCW rank 5 bound to socket 0[core 5[hwt 0]]: [./././././B/./././././././././././././././././.]
+[servidor:412760] MCW rank 6 bound to socket 0[core 6[hwt 0]]: [././././././B/././././././././././././././././.]
+[servidor:412760] MCW rank 7 bound to socket 0[core 7[hwt 0]]: [./././././././B/./././././././././././././././.]
+[servidor:412760] MCW rank 8 bound to socket 0[core 8[hwt 0]]: [././././././././B/././././././././././././././.]
+[servidor:412760] MCW rank 9 bound to socket 0[core 9[hwt 0]]: [./././././././././B/./././././././././././././.]
+[servidor:412760] MCW rank 10 bound to socket 0[core 10[hwt 0]]: [././././././././././B/././././././././././././.]
+[servidor:412760] MCW rank 11 bound to socket 0[core 11[hwt 0]]: [./././././././././././B/./././././././././././.]
+[servidor:412760] MCW rank 12 bound to socket 0[core 12[hwt 0]]: [././././././././././././B/././././././././././.]
+[servidor:412760] MCW rank 13 bound to socket 0[core 13[hwt 0]]: [./././././././././././././B/./././././././././.]
+[servidor:412760] MCW rank 14 bound to socket 0[core 14[hwt 0]]: [././././././././././././././B/././././././././.]
+[servidor:412760] MCW rank 15 bound to socket 0[core 15[hwt 0]]: [./././././././././././././././B/./././././././.]
+[servidor:412760] MCW rank 16 bound to socket 0[core 16[hwt 0]]: [././././././././././././././././B/././././././.]
+[servidor:412760] MCW rank 17 bound to socket 0[core 17[hwt 0]]: [./././././././././././././././././B/./././././.]
+[servidor:412760] MCW rank 18 bound to socket 0[core 18[hwt 0]]: [././././././././././././././././././B/././././.]
+[servidor:412760] MCW rank 19 bound to socket 0[core 19[hwt 0]]: [./././././././././././././././././././B/./././.]
+[servidor:412760] MCW rank 20 bound to socket 0[core 20[hwt 0]]: [././././././././././././././././././././B/././.]
+[servidor:412760] MCW rank 21 bound to socket 0[core 21[hwt 0]]: [./././././././././././././././././././././B/./.]
+[servidor:412760] MCW rank 22 bound to socket 0[core 22[hwt 0]]: [././././././././././././././././././././././B/.]
+[servidor:412760] MCW rank 23 bound to socket 0[core 23[hwt 0]]: [./././././././././././././././././././././././B]

@@ -1,0 +1,47 @@
+{
+  "inicio": "2026-09-25T08:19:38.378520-05:00",
+  "comando": [
+    "mpirun",
+    "-H",
+    "10.7.50.202:16",
+    "-np",
+    "16",
+    "--map-by",
+    "slot",
+    "--rank-by",
+    "slot",
+    "--bind-to",
+    "core",
+    "--mca",
+    "plm_rsh_agent",
+    "ssh -F /home/alumno16/cluster-mpi-96-optimizaciones/scripts/ssh_config",
+    "--mca",
+    "btl",
+    "self,vader,tcp",
+    "--mca",
+    "btl_tcp_if_include",
+    "10.7.50.0/24",
+    "--mca",
+    "oob_tcp_if_include",
+    "10.7.50.0/24",
+    "/var/tmp/cluster-mpi-96-optimizaciones/bin/bcast_bench",
+    "3072",
+    "hier"
+  ],
+  "antes": {
+    "10.7.50.202": [
+      18683135761,
+      7532759566
+    ]
+  },
+  "despues": {
+    "10.7.50.202": [
+      18683245711,
+      7532775838
+    ]
+  },
+  "estado": "ok"
+}
+
+RESULT_BCAST: N=3072, Procs=16, Modo=hier, T_Bcast=0.128914, Hash=1814438071394838832, Valido=1
+

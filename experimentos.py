@@ -24,7 +24,8 @@ IFACE = {"Ethernet": "enp128s31f6", "Wi-Fi": "wlp129s0f0"}
 CFG = {"Ethernet": ROOT / "scripts/ssh_config", "Wi-Fi": ROOT / "scripts/ssh_config_wifi"}
 FIELDS = ["id", "kind", "red", "n", "p", "nodos", "variante", "repeticion", "estado",
           "T_Total", "T_Dist", "T_Scatter", "T_Bcast", "T_Summa", "T_Calc",
-          "T_Gather", "Checksum", "WSum", "Hash", "Valido", "pared_s",
+          "T_Gather", "T_CalcMax", "T_CalcMin", "T_Reduce", "Desbalance", "Error", "Pi",
+          "Checksum", "WSum", "Hash", "Valido", "pared_s",
           "tx_mb_total", "rx_mb_total", "log"]
 
 
@@ -59,6 +60,26 @@ def cases():
     return out
 
 
+def cases_extra():
+    out = []
+    for rep in range(1, 4):
+        block = []
+        for n in (6144, 7168):
+            for p in (24, 96):
+                block.append(dict(kind="matriz", red="Ethernet", n=n, p=p,
+                                  nodos=1 if p == 24 else 4, variante="1d", repeticion=rep))
+        for n in (100000000, 100000000000):
+            for p in (24, 96):
+                for variant in ("simetrico", "asimetrico"):
+                    block.append(dict(kind="trapecio", red="Ethernet", n=n, p=p,
+                                      nodos=1 if p == 24 else 4, variante=variant, repeticion=rep))
+        random.Random(20260926 + rep).shuffle(block)
+        out.extend(block)
+    for c in out:
+        c["id"] = "_".join(str(c[k]) for k in ("kind", "red", "n", "p", "nodos", "variante", "repeticion"))
+    return out
+
+
 def counter(host: str, iface: str, cfg: Path):
     path = f"/sys/class/net/{iface}/statistics"
     cmd = f"cat {path}/tx_bytes {path}/rx_bytes"
@@ -76,6 +97,22 @@ def counters(red: str, nodos: int):
     return {host: counter(host, IFACE[red], CFG[red]) for host in HOSTS[red][:nodos]}
 
 
+def check_large_matrix_memory(c: dict):
+    if c["kind"] != "matriz" or c["n"] < 6144:
+        return
+    # 24 copias de B y A/C/fragmentos; 30 % de margen para MPI y el sistema.
+    needed = int(1.3 * (24 * 8 + 32) * c["n"] ** 2)
+    for host in HOSTS[c["red"]][:c["nodos"]]:
+        cmd = "awk '/MemAvailable:/ {print $2}' /proc/meminfo"
+        args = ["bash", "-lc", cmd] if host in ("10.7.50.202", "10.7.134.117") else ["ssh", "-F", str(CFG[c["red"]]), host, cmd]
+        proc = subprocess.run(args, text=True, capture_output=True, timeout=15)
+        if proc.returncode or not proc.stdout.strip().isdigit():
+            raise RuntimeError(f"no se pudo leer MemAvailable en {host}")
+        available = int(proc.stdout.strip()) * 1024
+        if available < needed:
+            raise RuntimeError(f"MemAvailable insuficiente en {host}: {available / 2**30:.1f} GiB < {needed / 2**30:.1f} GiB requeridos")
+
+
 def command(c):
     red, p, nodos = c["red"], c["p"], c["nodos"]
     slots = p // nodos
@@ -85,6 +122,8 @@ def command(c):
            "--bind-to", "core", "--mca", "plm_rsh_agent", f"ssh -F {CFG[red]}",
            "--mca", "btl", "self,vader,tcp", "--mca", "btl_tcp_if_include", net,
            "--mca", "oob_tcp_if_include", net]
+    if c["kind"] == "trapecio":
+        cmd.append("--report-bindings")
     if c["variante"].startswith("tuned-"):
         alg = "7" if c["variante"] == "tuned-knomial" else "8"
         cmd += ["--mca", "coll_tuned_use_dynamic_rules", "1",
@@ -92,13 +131,16 @@ def command(c):
     if c["kind"] == "bcast":
         mode = "hier" if c["variante"] == "hier" else "world"
         cmd += [f"{STAGE}/bcast_bench", str(c["n"]), mode]
+    elif c["kind"] == "trapecio":
+        mode = "0" if c["variante"] == "simetrico" else "1"
+        cmd += [f"{STAGE}/trapecio_asimetrico", str(c["n"]), mode]
     else:
         cmd += [f"{STAGE}/mpi_matrix_2d", str(c["n"]), c["variante"], "tiled", "64"]
     return cmd
 
 
 def parse_result(output: str):
-    lines = [s for s in output.splitlines() if s.startswith(("RESULT_2D:", "RESULT_BCAST:"))]
+    lines = [s for s in output.splitlines() if s.startswith(("RESULT_2D:", "RESULT_BCAST:", "RESULT_ASYM:"))]
     if len(lines) != 1:
         raise ValueError(f"se esperaba una línea RESULT, aparecieron {len(lines)}")
     result = {}
@@ -110,11 +152,16 @@ def parse_result(output: str):
 
 def append_row(path: Path, row: dict):
     new = not path.exists()
+    if new:
+        fieldnames = FIELDS
+    else:
+        with path.open(newline="") as existing_file:
+            fieldnames = next(csv.reader(existing_file))
     with path.open("a", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS)
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         if new:
             writer.writeheader()
-        writer.writerow({k: row.get(k, "") for k in FIELDS})
+        writer.writerow({k: row.get(k, "") for k in fieldnames})
         f.flush()
         os.fsync(f.fileno())
 
@@ -127,6 +174,7 @@ def execute(c: dict, folder: Path, timeout: int):
     t0 = time.monotonic()
     before = after = None
     try:
+        check_large_matrix_memory(c)
         before = counters(c["red"], c["nodos"])
         proc = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout, cwd=ROOT)
         after = counters(c["red"], c["nodos"])
@@ -153,7 +201,9 @@ def execute(c: dict, folder: Path, timeout: int):
     if status == "ok":
         try:
             data = parse_result(output)
-            for key in ("T_Total", "T_Dist", "T_Scatter", "T_Bcast", "T_Summa", "T_Calc", "T_Gather", "Checksum", "WSum", "Hash", "Valido"):
+            for key in ("T_Total", "T_Dist", "T_Scatter", "T_Bcast", "T_Summa", "T_Calc", "T_Gather",
+                        "T_CalcMax", "T_CalcMin", "T_Reduce", "Desbalance", "Error", "Pi",
+                        "Checksum", "WSum", "Hash", "Valido"):
                 if key in data:
                     row[key] = data[key]
             if data.get("Valido") == "0":
@@ -161,6 +211,8 @@ def execute(c: dict, folder: Path, timeout: int):
             if c["kind"] == "matriz" and c["n"] == 3072:
                 if abs(float(data["Checksum"]) - 22083010.24) > 0.02 or abs(float(data["WSum"]) / 4.748730e11 - 1) > 1e-5:
                     row["estado"] = "checksum_invalido"
+            if c["kind"] == "trapecio" and float(data["Error"]) > 1e-8:
+                row["estado"] = "error_numerico"
         except Exception as exc:
             row["estado"] = "parse_error"
             with log.open("a") as f:
@@ -171,12 +223,13 @@ def execute(c: dict, folder: Path, timeout: int):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["plan", "smoke", "run"])
+    parser.add_argument("action", choices=["plan", "smoke", "run", "plan-extra", "extra"])
     parser.add_argument("--dir", type=Path, help="directorio de resultados para reanudar")
     parser.add_argument("--timeout", type=int, default=420, help="límite por corrida en segundos")
+    parser.add_argument("--max-new", type=int, help="número máximo de intentos nuevos en esta invocación")
     args = parser.parse_args()
-    planned = cases()
-    if args.action == "plan":
+    planned = cases_extra() if args.action in ("plan-extra", "extra") else cases()
+    if args.action in ("plan", "plan-extra"):
         for c in planned:
             print(c["id"], " ".join(command(c)))
         print(f"Total: {len(planned)} corridas")
@@ -185,6 +238,8 @@ def main():
         planned = [dict(kind="matriz", red="Ethernet", n=512, p=16, nodos=4,
                         variante=v, repeticion=0, id=f"smoke_matriz_{v}") for v in ("1d", "1d-hier", "2d")]
         # 2D requiere P cuadrado y 512 divisible por 4.
+        planned += [dict(kind="trapecio", red="Ethernet", n=10000, p=24, nodos=1,
+                         variante=v, repeticion=0, id=f"smoke_trapecio_{v}") for v in ("simetrico", "asimetrico")]
     folder = args.dir or ROOT / "resultados_optimizacion" / datetime.now().strftime("%Y%m%d_%H%M%S")
     folder.mkdir(parents=True, exist_ok=True)
     csv_path = folder / "resultados.csv"
@@ -192,15 +247,21 @@ def main():
     if not (folder / "entorno.json").exists():
         env = {"fecha": datetime.now().astimezone().isoformat(), "hostname": os.uname().nodename,
                "mpi": subprocess.run(["ompi_info", "--version"], text=True, capture_output=True).stdout.splitlines()[0],
-               "compilacion": "mpicc -O3 -std=c11 -Wall -Wextra", "nota_trafico": "suma TX/RX por nodo; incluye control SSH y posible tráfico ajeno"}
+               "compilacion": "mpicc -O3 -std=c11 -Wall -Wextra", "timeout_s": args.timeout,
+               "casos_planificados": len(planned),
+               "nota_trafico": "suma TX/RX por nodo; incluye control SSH y posible tráfico ajeno"}
         (folder / "entorno.json").write_text(json.dumps(env, indent=2, ensure_ascii=False))
+    newly_run = 0
     for idx, c in enumerate(planned, 1):
         if c["id"] in existing:
             continue
         print(f"[{idx}/{len(planned)}] {c['id']}", flush=True)
         row = execute(c, folder, args.timeout)
         append_row(csv_path, row)
+        newly_run += 1
         print(f"  {row['estado']} T={row.get('T_Total') or row.get('T_Bcast')} s, pared={row['pared_s']} s", flush=True)
+        if args.max_new and newly_run >= args.max_new:
+            break
     print(f"Resultados: {csv_path}")
 
 

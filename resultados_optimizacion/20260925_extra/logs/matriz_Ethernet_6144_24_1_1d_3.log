@@ -1,0 +1,49 @@
+{
+  "inicio": "2026-09-25T08:33:09.851209-05:00",
+  "comando": [
+    "mpirun",
+    "-H",
+    "10.7.50.202:24",
+    "-np",
+    "24",
+    "--map-by",
+    "slot",
+    "--rank-by",
+    "slot",
+    "--bind-to",
+    "core",
+    "--mca",
+    "plm_rsh_agent",
+    "ssh -F /home/alumno16/cluster-mpi-96-optimizaciones/scripts/ssh_config",
+    "--mca",
+    "btl",
+    "self,vader,tcp",
+    "--mca",
+    "btl_tcp_if_include",
+    "10.7.50.0/24",
+    "--mca",
+    "oob_tcp_if_include",
+    "10.7.50.0/24",
+    "/var/tmp/cluster-mpi-96-optimizaciones/bin/mpi_matrix_2d",
+    "6144",
+    "1d",
+    "tiled",
+    "64"
+  ],
+  "antes": {
+    "10.7.50.202": [
+      28535466251,
+      8960100222
+    ]
+  },
+  "despues": {
+    "10.7.50.202": [
+      28536492872,
+      8960152095
+    ]
+  },
+  "estado": "ok"
+}
+
+RESULT_2D: N=6144, Procs=24, Algo=1d, Kernel=tiled, BS=64, T_Dist=0.958776, T_Summa=0.000000, T_Calc=4.447498, T_CalcAvg=3.993039, T_Gather=0.768452, T_Total=5.279325, T_Scatter=0.125742, T_Bcast=0.933545, GFLOPS=87.8628, Checksum=88332041.42, WSum=3.798985e+12
+

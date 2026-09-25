@@ -1,0 +1,4 @@
+id,kind,red,n,p,nodos,variante,repeticion,estado,T_Total,T_Dist,T_Scatter,T_Bcast,T_Summa,T_Calc,T_Gather,Checksum,WSum,Hash,Valido,pared_s,tx_mb_total,rx_mb_total,log
+smoke_matriz_1d,matriz,Ethernet,512,16,4,1d,0,ok,0.178366,0.150693,0.029130,0.149854,0.000000,0.001234,0.086876,613416.74,2.198471e+09,,,2.6349,32.2119,32.2148,logs/smoke_matriz_1d.log
+smoke_matriz_1d-hier,matriz,Ethernet,512,16,4,1d-hier,0,ok,0.098136,0.081790,0.023561,0.064559,0.000000,0.001243,0.061627,613416.74,2.198471e+09,,,2.5508,10.1474,10.1483,logs/smoke_matriz_1d-hier.log
+smoke_matriz_2d,matriz,Ethernet,512,16,4,2d,0,ok,0.102155,0.028360,0.000000,0.000000,0.075244,0.001087,0.018953,613416.74,2.198471e+09,,,2.5235,12.3673,12.3682,logs/smoke_matriz_2d.log

@@ -1,0 +1,7 @@
+{
+  "fecha": "2026-09-25T07:43:54.998447-05:00",
+  "hostname": "servidor",
+  "mpi": "Open MPI v4.1.6",
+  "compilacion": "mpicc -O3 -std=c11 -Wall -Wextra",
+  "nota_trafico": "suma TX/RX por nodo; incluye control SSH y posible tráfico ajeno"
+}

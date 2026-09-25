@@ -1,0 +1,107 @@
+{
+  "inicio": "2026-09-25T07:55:50.233575-05:00",
+  "comando": [
+    "mpirun",
+    "-H",
+    "10.7.134.117:4,10.7.134.58:4,10.7.134.59:4,10.7.134.51:4",
+    "-np",
+    "16",
+    "--map-by",
+    "slot",
+    "--rank-by",
+    "slot",
+    "--bind-to",
+    "core",
+    "--mca",
+    "plm_rsh_agent",
+    "ssh -F /home/alumno16/cluster-mpi-96-optimizaciones/scripts/ssh_config_wifi",
+    "--mca",
+    "btl",
+    "self,vader,tcp",
+    "--mca",
+    "btl_tcp_if_include",
+    "10.7.134.0/23",
+    "--mca",
+    "oob_tcp_if_include",
+    "10.7.134.0/23",
+    "/var/tmp/cluster-mpi-96-optimizaciones/bin/bcast_bench",
+    "3072",
+    "hier"
+  ],
+  "antes": {
+    "10.7.134.117": [
+      8444111976,
+      2131501405
+    ],
+    "10.7.134.58": [
+      1790610208,
+      5962537646
+    ],
+    "10.7.134.59": [
+      3033955652,
+      3835299876
+    ],
+    "10.7.134.51": [
+      1232024527,
+      3268380379
+    ]
+  },
+  "despues": {
+    "10.7.134.117": [
+      8519833021,
+      2131883486
+    ],
+    "10.7.134.58": [
+      1866616758,
+      6042402183
+    ],
+    "10.7.134.59": [
+      3109929195,
+      3915164081
+    ],
+    "10.7.134.51": [
+      1232365987,
+      3348006333
+    ]
+  },
+  "estado": "ok"
+}
+
+RESULT_BCAST: N=3072, Procs=16, Modo=hier, T_Bcast=31.940442, Hash=1814438071394838832, Valido=1
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+
+Authorization required, but no authorization protocol specified
+

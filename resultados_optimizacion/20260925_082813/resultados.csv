@@ -1,0 +1,6 @@
+id,kind,red,n,p,nodos,variante,repeticion,estado,T_Total,T_Dist,T_Scatter,T_Bcast,T_Summa,T_Calc,T_Gather,T_CalcMax,T_CalcMin,T_Reduce,Desbalance,Error,Pi,Checksum,WSum,Hash,Valido,pared_s,tx_mb_total,rx_mb_total,log
+smoke_matriz_1d,matriz,Ethernet,512,16,4,1d,0,ok,0.160913,0.135698,0.029549,0.135267,0.000000,0.001214,0.053765,,,,,,,613416.74,2.198471e+09,,,2.6357,32.2175,32.2041,logs/smoke_matriz_1d.log
+smoke_matriz_1d-hier,matriz,Ethernet,512,16,4,1d-hier,0,ok,0.103512,0.089505,0.026958,0.073052,0.000000,0.001219,0.064466,,,,,,,613416.74,2.198471e+09,,,2.5591,10.1321,10.1303,logs/smoke_matriz_1d-hier.log
+smoke_matriz_2d,matriz,Ethernet,512,16,4,2d,0,ok,0.100844,0.028548,0.000000,0.000000,0.077256,0.001067,0.016654,,,,,,,613416.74,2.198471e+09,,,2.5403,12.3806,12.3696,logs/smoke_matriz_2d.log
+smoke_trapecio_simetrico,trapecio,Ethernet,10000,24,1,simetrico,0,ok,0.000044,,,,,,,0.000002,0.000000,0.000043,5.188,1.67e-09,3.14159265192313,,,,,1.0626,0.0122,0.0151,logs/smoke_trapecio_simetrico.log
+smoke_trapecio_asimetrico,trapecio,Ethernet,10000,24,1,asimetrico,0,ok,0.000058,,,,,,,0.000000,0.000000,0.000058,1.292,1.67e-09,3.14159265192313,,,,,0.9867,0.0082,0.002,logs/smoke_trapecio_asimetrico.log
